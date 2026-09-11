@@ -1,0 +1,2 @@
+"""Bobelle Works configuration."""
+
