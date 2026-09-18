@@ -88,7 +88,7 @@ with middle:
         late = int(((pd.to_numeric(po["미입고수량"], errors="coerce").fillna(0) > 0) & (po["입고예정일"].dt.date < pd.Timestamp.now(tz=d.settings.timezone).date())).sum())
         st.markdown(f'''<div class="bw-stock-cards"><div class="bw-stock-card blue"><span>▦ 현재고</span><b>{num(inv["현재고"].sum())}</b><span>전체 SKU 기준</span></div><div class="bw-stock-card warn"><span>⚠ 보충 필요</span><b>{num(replenish)}</b><span>안전재고 미만</span></div><div class="bw-stock-card"><span>▣ 미입고</span><b>{num(po["미입고수량"].sum())}</b><span>발주 확정 기준</span></div></div>''',unsafe_allow_html=True)
         summary=pd.DataFrame({"구분":["정상 재고","품절 SKU","보충 필요 SKU","납기 지연"],"수량":[normal,negative,replenish,late]})
-        show(summary,height=172)
+        show(summary,height=200)
 
 with right:
     with st.container(border=True):
