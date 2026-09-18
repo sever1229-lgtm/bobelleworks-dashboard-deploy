@@ -14,7 +14,7 @@ from services.interpretation import (
 
 d = context()
 f = d.frames
-title("통역 대시보드", "통역·번역 프로젝트 매출과 정산 진행 상태를 한눈에 확인하세요.")
+title("통역 대시보드", "통역 프로젝트의 매출과 정산 진행 상태를 한눈에 확인하세요.")
 translation = interpretation_frame(f.get("통역 매출"))
 lo, hi = period_bounds(translation, d.settings.timezone)
 picked = st.date_input("조회 기간", (lo.date(), hi.date()), key="interpretation_overview_period")
