@@ -13,10 +13,6 @@ def context():
     except Exception:
         secret_sheet_id=""
     if secret_sheet_id: settings=Settings(spreadsheet_id=secret_sheet_id,timezone=settings.timezone,cache_ttl=settings.cache_ttl)
-    with st.sidebar:
-        st.markdown("## Bobelle Works"); st.caption("좋은 일이, 더 넓은 일상으로.")
-        if st.button("↻ 최신 데이터 새로고침",use_container_width=True):
-            st.session_state["cache_buster"]=st.session_state.get("cache_buster",0)+1; st.cache_data.clear(); st.rerun()
     if not settings.spreadsheet_id:
         st.error("Google Spreadsheet ID가 설정되지 않았습니다."); st.info("배포 환경의 Secrets에 GOOGLE_SPREADSHEET_ID를 등록해 주세요."); st.stop()
     try: data=load_dashboard_data(settings.spreadsheet_id,settings.timezone,st.session_state.get("cache_buster",0))
@@ -29,8 +25,24 @@ def context():
         user_col.markdown(f'<div class="bw-user"><span>{now:%Y년 %m월 %d일}</span><span>●</span><span class="bw-avatar">B</span><b>보벨웍스<br><small>운영자</small></b></div>',unsafe_allow_html=True)
     if data.sheet_timezone!=settings.timezone: st.caption(f"⚠ 시트 시간대 {data.sheet_timezone} · 날짜 비교는 한국시간 기준")
     with st.sidebar:
-        st.markdown('<div class="bw-brand-panel"><b>작은 브랜드도<br>큰 가능성을 만듭니다.</b>Bobelle Works<br>for a better tomorrow.</div>',unsafe_allow_html=True)
-        st.caption(f"데이터 기준: {data.loaded_at:%Y-%m-%d %H:%M:%S}")
+        with st.container(key="bw_sidebar_footer"):
+            st.markdown(
+                """
+                <div class="bw-ci-logo" aria-label="Bobelle Works">
+                  <svg viewBox="0 0 370 165" role="img" aria-label="Bobelle Works 보벨웍스">
+                    <text x="7" y="66" class="bw-ci-main">Bobelle</text>
+                    <text x="7" y="139" class="bw-ci-main">works</text>
+                    <text x="250" y="137" class="bw-ci-kr">보벨웍스</text>
+                  </svg>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            if st.button("↻ 최신 데이터 새로고침", use_container_width=True, key="bw_refresh_bottom"):
+                st.session_state["cache_buster"] = st.session_state.get("cache_buster", 0) + 1
+                st.cache_data.clear()
+                st.rerun()
+            st.caption(f"데이터 기준: {data.loaded_at:%Y-%m-%d %H:%M:%S}")
     return data
 
 def title(name,description):
