@@ -6,8 +6,8 @@ pages = {
     "Overview": [
         st.Page("views/overall_overview.py", title="전체 대시보드", icon="📊", default=True),
     ],
-    "쇼핑몰": [
-        st.Page("views/overview.py", title="쇼핑몰 대시보드", icon="🛍️"),
+    "스마일피치노": [
+        st.Page("views/overview.py", title="스마일피치노 대시보드", icon="🛍️"),
         st.Page("views/profit.py", title="매출·손익", icon="📈"),
         st.Page("views/sales.py", title="주문·판매", icon="🧾"),
         st.Page("views/product_analysis.py", title="상품 분석", icon="🔎"),
