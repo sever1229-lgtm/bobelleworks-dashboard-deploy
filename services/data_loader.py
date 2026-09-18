@@ -63,25 +63,36 @@ def _date(value: Any):
 
 
 def _add_monthly_compatibility_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Expose legacy columns while allowing the expanded monthly-performance layout."""
+    """Expose stable generic columns while using Smile Peachino-branded sheet columns."""
     out = df.copy()
+
     if "전체 매출" not in out and "매출" in out:
         out["전체 매출"] = out["매출"]
-    if "쇼핑몰 매출" not in out:
-        out["쇼핑몰 매출"] = out.get("매출", out.get("전체 매출", 0))
+
+    if "스마일피치노 매출" not in out:
+        out["스마일피치노 매출"] = out.get("매출", out.get("전체 매출", 0))
+
     if "통역 매출" not in out:
-        # Backward compatibility for workbooks created before the interpretation-only naming.
-        if "통번역 매출" in out:
-            out["통역 매출"] = out["통번역 매출"]
-        else:
-            out["통역 매출"] = pd.NA
-    # Existing shopping-mall pages and validation intentionally continue to use "매출".
+        out["통역 매출"] = pd.NA
+
+    # Existing Smile Peachino detail pages use generic metric names internally.
     if "매출" not in out:
-        out["매출"] = out.get("쇼핑몰 매출", out.get("전체 매출", 0))
+        out["매출"] = out.get("스마일피치노 매출", out.get("전체 매출", 0))
+    if "매출원가" not in out and "스마일피치노 매출원가" in out:
+        out["매출원가"] = out["스마일피치노 매출원가"]
+    if "판매 부대비" not in out and "스마일피치노 판매 부대비" in out:
+        out["판매 부대비"] = out["스마일피치노 판매 부대비"]
+
+    # Preserve current dashboard behavior where only total profit columns exist.
+    if "공헌이익" not in out and "전체 공헌이익" in out:
+        out["공헌이익"] = out["전체 공헌이익"]
+    if "관리손익" not in out and "전체 관리손익" in out:
+        out["관리손익"] = out["전체 관리손익"]
     if "전체 공헌이익" not in out:
         out["전체 공헌이익"] = out.get("공헌이익", 0)
     if "전체 관리손익" not in out:
         out["전체 관리손익"] = out.get("관리손익", 0)
+
     return out
 
 
