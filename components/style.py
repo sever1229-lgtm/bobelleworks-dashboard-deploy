@@ -1,5 +1,7 @@
+from datetime import date, datetime
 from numbers import Number
 
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
@@ -95,21 +97,51 @@ def apply_style():
     )
 
 
-def _axis_has_numeric_values(fig: go.Figure, attr: str) -> bool:
+def _axis_values(fig: go.Figure, attr: str) -> list:
+    out = []
     for trace in fig.data:
         values = getattr(trace, attr, None)
         if values is None:
             continue
         try:
-            for value in values:
-                if value is None:
-                    continue
-                if isinstance(value, Number) and not isinstance(value, bool):
-                    return True
-                break
+            out.extend([value for value in values if value is not None])
         except TypeError:
             continue
-    return False
+    return out
+
+
+def _axis_has_numeric_values(fig: go.Figure, attr: str) -> bool:
+    values = _axis_values(fig, attr)
+    if not values:
+        return False
+    first = values[0]
+    if isinstance(first, (pd.Timestamp, datetime, date)):
+        return False
+    return isinstance(first, Number) and not isinstance(first, bool)
+
+
+def _date_axis_format(fig: go.Figure, attr: str):
+    values = _axis_values(fig, attr)
+    if not values:
+        return None
+    try:
+        dates = pd.to_datetime(pd.Series(values), errors="coerce").dropna()
+    except Exception:
+        return None
+    if dates.empty or len(dates) != len(values):
+        return None
+
+    # Monthly dashboard series are stored as month-start timestamps.
+    monthly = bool(((dates.dt.day == 1) & (dates.dt.hour == 0) & (dates.dt.minute == 0) & (dates.dt.second == 0)).all())
+    if monthly:
+        return {"tickformat": "%Y-%m", "hoverformat": "%Y-%m", "dtick": "M1"}
+
+    unique_days = dates.dt.normalize().nunique()
+    config = {"tickformat": "%Y-%m-%d", "hoverformat": "%Y-%m-%d"}
+    # A single date otherwise gets fractional-day tick marks around midnight.
+    if unique_days <= 1:
+        config["dtick"] = 24 * 60 * 60 * 1000
+    return config
 
 
 def chart_style(fig: go.Figure, height: int = 275, legend: bool = True) -> go.Figure:
@@ -127,8 +159,10 @@ def chart_style(fig: go.Figure, height: int = 275, legend: bool = True) -> go.Fi
 
     numeric_x = _axis_has_numeric_values(fig, "x")
     numeric_y = _axis_has_numeric_values(fig, "y")
+    date_x = _date_axis_format(fig, "x")
+    date_y = _date_axis_format(fig, "y")
 
-    fig.update_xaxes(
+    x_kwargs = dict(
         showgrid=False,
         zeroline=False,
         title_text="",
@@ -137,7 +171,10 @@ def chart_style(fig: go.Figure, height: int = 275, legend: bool = True) -> go.Fi
         separatethousands=True if numeric_x else None,
         exponentformat="none" if numeric_x else None,
     )
-    fig.update_yaxes(
+    if date_x:
+        x_kwargs.update(type="date", **date_x)
+
+    y_kwargs = dict(
         gridcolor=COLORS["grid"],
         zeroline=False,
         title_text="",
@@ -146,6 +183,11 @@ def chart_style(fig: go.Figure, height: int = 275, legend: bool = True) -> go.Fi
         separatethousands=True if numeric_y else None,
         exponentformat="none" if numeric_y else None,
     )
+    if date_y:
+        y_kwargs.update(type="date", **date_y)
+
+    fig.update_xaxes(**x_kwargs)
+    fig.update_yaxes(**y_kwargs)
     return fig
 
 
