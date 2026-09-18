@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 import streamlit as st
 from components.filters import period_filter
 from components.kpi_cards import metrics,pct,won
-from components.style import chart_style,section_title
+from components.style import chart_style,footnote,section_title
 from components.tables import show
 from runtime import context,title
 from services.calculations import filter_dates
@@ -31,4 +31,4 @@ with st.container(border=True):
     section_title("월별 매출·이익 추이")
     long=m.melt(id_vars=["월 시작"],value_vars=["매출","공헌이익","관리손익"],var_name="항목",value_name="금액")
     st.plotly_chart(chart_style(px.bar(long,x="월 시작",y="금액",color="항목",barmode="group",color_discrete_sequence=["#3b82f6","#20b486","#ec5f8c"]),260),use_container_width=True,config={"displayModeBar":False})
-st.info("공헌이익과 관리손익은 내부 운영 판단용 지표입니다. 세금, 감가상각 등 회계 조정을 포함한 회계상 순이익과 다릅니다.")
+footnote("공헌이익과 관리손익은 내부 운영 판단용 지표입니다. 세금, 감가상각 등 회계 조정을 포함한 회계상 순이익과 다릅니다.", boxed=True)
