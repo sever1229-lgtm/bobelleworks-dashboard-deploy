@@ -1,3 +1,5 @@
+from numbers import Number
+
 import plotly.graph_objects as go
 import streamlit as st
 
@@ -87,6 +89,23 @@ def apply_style():
     )
 
 
+def _axis_has_numeric_values(fig: go.Figure, attr: str) -> bool:
+    for trace in fig.data:
+        values = getattr(trace, attr, None)
+        if values is None:
+            continue
+        try:
+            for value in values:
+                if value is None:
+                    continue
+                if isinstance(value, Number) and not isinstance(value, bool):
+                    return True
+                break
+        except TypeError:
+            continue
+    return False
+
+
 def chart_style(fig: go.Figure, height: int = 275, legend: bool = True) -> go.Figure:
     fig.update_layout(
         height=height,
@@ -97,9 +116,30 @@ def chart_style(fig: go.Figure, height: int = 275, legend: bool = True) -> go.Fi
         hoverlabel=dict(bgcolor="white", font_size=11),
         legend=dict(orientation="h", y=1.14, x=1, xanchor="right", title_text="", font_size=9),
         showlegend=legend,
+        separators=".,",
     )
-    fig.update_xaxes(showgrid=False, zeroline=False, title_text="", tickfont_size=9)
-    fig.update_yaxes(gridcolor=COLORS["grid"], zeroline=False, title_text="", tickfont_size=9)
+
+    numeric_x = _axis_has_numeric_values(fig, "x")
+    numeric_y = _axis_has_numeric_values(fig, "y")
+
+    fig.update_xaxes(
+        showgrid=False,
+        zeroline=False,
+        title_text="",
+        tickfont_size=9,
+        tickformat=",.0f" if numeric_x else None,
+        separatethousands=True if numeric_x else None,
+        exponentformat="none" if numeric_x else None,
+    )
+    fig.update_yaxes(
+        gridcolor=COLORS["grid"],
+        zeroline=False,
+        title_text="",
+        tickfont_size=9,
+        tickformat=",.0f" if numeric_y else None,
+        separatethousands=True if numeric_y else None,
+        exponentformat="none" if numeric_y else None,
+    )
     return fig
 
 
