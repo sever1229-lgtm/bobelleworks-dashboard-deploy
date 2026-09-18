@@ -5,7 +5,7 @@ import streamlit as st
 
 from components.filters import period_filter
 from components.kpi_cards import metrics, won
-from components.style import COLORS, chart_style, section_title
+from components.style import COLORS, chart_style, footnote, section_title
 from runtime import context, title
 from services.interpretation import interpretation_frame, monthly_business_summary
 
@@ -68,7 +68,7 @@ with right:
         ))
         fig.add_annotation(text=won(total_revenue), x=.5, y=.5, showarrow=False, font=dict(size=13, color=COLORS["text"]))
         st.plotly_chart(chart_style(fig, 310), use_container_width=True, config={"displayModeBar": False})
-        st.caption("매출은 스마일피치노와 통역 모두 세전 기준으로 표시합니다.")
+        footnote("매출은 스마일피치노와 통역 모두 세전 기준으로 표시합니다.")
 
 with st.container(border=True):
     section_title("월별 전체 수익성 및 현금흐름")
@@ -80,4 +80,4 @@ with st.container(border=True):
     )
     st.plotly_chart(chart_style(fig, 265), use_container_width=True, config={"displayModeBar": False})
 
-st.info("통역 매출은 원천징수 전 금액입니다. 원천징수액은 비용으로 차감하지 않으며, 실제 현금 유입은 입출금 시트의 ‘통역수입’ 기록을 기준으로 자금에 반영됩니다.")
+footnote("통역 매출은 원천징수 전 금액입니다. 원천징수액은 비용으로 차감하지 않으며, 실제 현금 유입은 입출금 시트의 ‘통역수입’ 기록을 기준으로 자금에 반영됩니다.", boxed=True)
