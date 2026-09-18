@@ -90,6 +90,8 @@ def apply_style():
         .stSelectbox label,.stDateInput label,.stTextInput label,.stMultiSelect label{font-size:.66rem;color:#69758a;font-weight:700}
         .stSelectbox div[data-baseweb="select"]>div,.stDateInput input,.stTextInput input,.stMultiSelect div[data-baseweb="select"]>div{border-color:#e3e9f2;background:#fff;border-radius:7px;font-size:.75rem;min-height:36px}
         .stButton>button{border-radius:7px;font-size:.72rem}
+        .bw-footnote{font-size:10px!important;line-height:1.45;color:#718198;font-style:italic;margin:.35rem 0 .15rem}
+        .bw-footnote.boxed{padding:7px 10px;border-radius:7px;background:#dceafd;color:#547092;border:1px solid rgba(80,120,170,.06)}
         @media(max-width:1100px){[data-testid="stSidebar"]{min-width:190px;max-width:190px}.st-key-bw_sidebar_footer{width:auto;margin-left:.6rem;margin-right:.6rem}.st-key-bw_sidebar_footer .bw-ci-logo svg{width:152px}.block-container{padding:1rem}.st-key-bw_topbar{margin:-1rem -1rem .8rem}.bw-kpi{min-height:118px;padding:11px}.bw-kpi-value{font-size:1rem}.bw-mini-grid{grid-template-columns:repeat(2,1fr)}}
         @media(max-width:760px){.bw-title{font-size:1.35rem}.bw-mini-grid{grid-template-columns:1fr 1fr}div[data-testid="stHorizontalBlock"]:has(.bw-kpi){flex-wrap:wrap!important;gap:.5rem!important}div[data-testid="stHorizontalBlock"]:has(.bw-kpi)>div[data-testid="stColumn"]{min-width:calc(50% - .25rem)!important;flex:1 1 calc(50% - .25rem)!important}.bw-kpi{min-height:108px}.bw-kpi-value{font-size:1.05rem}}
         </style>""",
@@ -189,6 +191,11 @@ def chart_style(fig: go.Figure, height: int = 275, legend: bool = True) -> go.Fi
     fig.update_xaxes(**x_kwargs)
     fig.update_yaxes(**y_kwargs)
     return fig
+
+
+def footnote(text: str, boxed: bool = False):
+    cls = "bw-footnote boxed" if boxed else "bw-footnote"
+    st.markdown(f'<div class="{cls}">{text}</div>', unsafe_allow_html=True)
 
 
 def section_title(text: str):
