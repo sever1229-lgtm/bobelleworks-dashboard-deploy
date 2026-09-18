@@ -41,7 +41,6 @@ metrics(
     ],
     6,
 )
-st.write("")
 
 c1, c2, c3 = st.columns([1.35, 1, 1], gap="small")
 with c1:
