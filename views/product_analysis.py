@@ -19,10 +19,10 @@ if len(p): p=p.sort_values(mapping[order][0],ascending=mapping[order][1])
 c1,c2=st.columns(2)
 with c1:
     with st.container(border=True):
-        section_title("매출 TOP"); st.plotly_chart(chart_style(px.bar(p.nlargest(10,"매출"),x="매출",y="SKU",orientation="h",color_discrete_sequence=["#3b82f6"]),260,False),use_container_width=True,config={"displayModeBar":False})
+        section_title("매출 TOP"); st.plotly_chart(chart_style(px.bar(p.nlargest(10,"매출"),x="SKU",y="매출",color_discrete_sequence=["#3b82f6"],labels={"SKU":"SKU","매출":"매출"}),260,False),use_container_width=True,config={"displayModeBar":False})
 with c2:
     with st.container(border=True):
-        section_title("공헌이익 TOP"); st.plotly_chart(chart_style(px.bar(p.nlargest(10,"공헌이익"),x="공헌이익",y="SKU",orientation="h",color_discrete_sequence=["#20b486"]),260,False),use_container_width=True,config={"displayModeBar":False})
+        section_title("공헌이익 TOP"); st.plotly_chart(chart_style(px.bar(p.nlargest(10,"공헌이익"),x="SKU",y="공헌이익",color_discrete_sequence=["#20b486"],labels={"SKU":"SKU","공헌이익":"공헌이익"}),260,False),use_container_width=True,config={"displayModeBar":False})
 c3,c4=st.columns([1.35,1],gap="small")
 with c3:
     with st.container(border=True):
