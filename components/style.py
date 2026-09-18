@@ -126,8 +126,26 @@ def _date_axis_format(fig: go.Figure, attr: str):
     values = _axis_values(fig, attr)
     if not values:
         return None
+
+    series = pd.Series(values)
+
+    # Never interpret numeric business metrics (sales, profit, quantity, etc.) as dates.
+    # pandas.to_datetime([100000, ...]) is valid and becomes 1970-era timestamps,
+    # which previously caused numeric chart axes to render as dates.
+    if pd.api.types.is_numeric_dtype(series):
+        return None
+
+    non_null = series.dropna()
+    if non_null.empty:
+        return None
+
+    first = non_null.iloc[0]
+    is_datetime = pd.api.types.is_datetime64_any_dtype(series) or isinstance(first, (pd.Timestamp, datetime, date))
+    if not is_datetime:
+        return None
+
     try:
-        dates = pd.to_datetime(pd.Series(values), errors="coerce").dropna()
+        dates = pd.to_datetime(series, errors="coerce").dropna()
     except Exception:
         return None
     if dates.empty or len(dates) != len(values):
