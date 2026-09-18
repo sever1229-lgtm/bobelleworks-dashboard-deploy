@@ -24,12 +24,9 @@ COLORS = {
 def apply_style():
     st.markdown(
         """<style>
-        :root{--bw-navy:#14243a;--bw-blue:#3b82f6;--bw-text:#172033;--bw-muted:#778196;--bw-line:#e8edf5;--bw-bg:#f4f7fb;--bw-section-gap:.9rem}
+        :root{--bw-navy:#14243a;--bw-blue:#3b82f6;--bw-text:#172033;--bw-muted:#778196;--bw-line:#e8edf5;--bw-bg:#f4f7fb}
         .stApp{background:var(--bw-bg);color:var(--bw-text)}
         .block-container{padding:.65rem 1.55rem 1.35rem;max-width:none;width:100%}
-        /* Keep the spacing between major dashboard rows identical on every page. */
-        .block-container > div[data-testid="stVerticalBlock"],
-        .block-container > div > div[data-testid="stVerticalBlock"]{gap:var(--bw-section-gap)!important} /* top-level dashboard spacing */
         header[data-testid="stHeader"]{display:block!important;visibility:visible!important;background:transparent;height:2.2rem;z-index:1001}
         [data-testid="stToolbar"] button:not([data-testid="stExpandSidebarButton"]),[data-testid="stToolbar"] a{display:none!important}
         [data-testid="stExpandSidebarButton"]{background:#1c2c42!important;border-radius:7px!important;z-index:1002!important}
@@ -57,6 +54,7 @@ def apply_style():
         .bw-eyebrow{color:#3b82f6;font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.15rem}
         div[data-testid="stVerticalBlockBorderWrapper"]>div{background:#fff;border-color:var(--bw-line)!important;border-radius:10px!important;box-shadow:0 3px 12px rgba(22,38,63,.035)}
         .bw-kpi{background:#fff;border:1px solid var(--bw-line);border-radius:10px;padding:13px 15px 8px;min-height:142px;box-shadow:0 4px 16px rgba(22,38,63,.045);overflow:hidden}
+        div[data-testid="stHorizontalBlock"]:has(.bw-kpi){margin-bottom:1rem!important} /* KPI-row vertical spacing */
         .bw-kpi-top{display:flex;align-items:center;gap:8px;margin-bottom:7px}
         .bw-kpi-icon{width:26px;height:26px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800}
         .bw-kpi-label{font-size:.7rem;color:#596579;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
