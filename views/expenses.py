@@ -12,7 +12,7 @@ start,end,query=period_filter(f); base=filter_dates(f["운영비"],"발생일",s
 types=multiselect(base,"비용구분","비용구분"); ex=search_rows(filter_text(base,{"비용구분":types}),query)
 all_ex=f["운영비"]; current_month=all_ex[all_ex["발생일"].dt.to_period("M")==end.to_period("M")]
 metrics([("이번 달 운영비",won(current_month["금액"].sum()),None),("선택 기간 운영비",won(ex["금액"].sum()),None),("누적 운영비",won(all_ex["금액"].sum()),None),("비용 항목 수",num(ex["비용구분"].nunique()),None)],4)
-ex=ex.copy(); ex["월"]=ex["발생일"].dt.to_period("M").astype(str)
+ex=ex.copy(); ex["월"]=ex["발생일"].dt.strftime("%y-%m")
 c1,c2=st.columns(2)
 with c1:
     with st.container(border=True):
