@@ -230,18 +230,18 @@ def monthly_business_summary(monthly: pd.DataFrame, interpretation: pd.DataFrame
         out["통역 매출"] = pd.to_numeric(out["통역 매출"], errors="coerce").fillna(derived)
     else:
         out["통역 매출"] = derived
-    out["쇼핑몰 매출"] = numeric_column("쇼핑몰 매출") if "쇼핑몰 매출" in out else numeric_column("매출")
+    out["스마일피치노 매출"] = numeric_column("스마일피치노 매출") if "스마일피치노 매출" in out else numeric_column("매출")
     if "전체 매출" in out:
         overall = pd.to_numeric(out["전체 매출"], errors="coerce")
-        # Legacy loaders expose 전체 매출=쇼핑몰 매출. When a new translation
+        # Legacy loaders expose 전체 매출=스마일피치노 매출. When a new translation
         # row exists, derive the combined amount until the sheet formula is filled.
-        fallback = out["쇼핑몰 매출"] + out["통역 매출"]
+        fallback = out["스마일피치노 매출"] + out["통역 매출"]
         out["전체 매출"] = overall.where(
-            overall.notna() & ~((overall == out["쇼핑몰 매출"]) & out["통역 매출"].ne(0)),
+            overall.notna() & ~((overall == out["스마일피치노 매출"]) & out["통역 매출"].ne(0)),
             fallback,
         )
     else:
-        out["전체 매출"] = out["쇼핑몰 매출"] + out["통역 매출"]
+        out["전체 매출"] = out["스마일피치노 매출"] + out["통역 매출"]
 
     shop_contribution = numeric_column("공헌이익")
     shop_management = numeric_column("관리손익")
