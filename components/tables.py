@@ -16,6 +16,11 @@ def _won_text(value):
 def show(df: pd.DataFrame, currency=(), percent=(), height=420):
     display = df.copy()
 
+    # Dashboard tables show calendar dates only. Time is not an operational field.
+    for c in display.columns:
+        if pd.api.types.is_datetime64_any_dtype(display[c]):
+            display[c] = display[c].dt.strftime("%Y-%m-%d").fillna("")
+
     # Currency columns are rendered as text so thousands separators are always
     # visible consistently in Streamlit dataframes (e.g. ₩1,000,000).
     for c in currency:
