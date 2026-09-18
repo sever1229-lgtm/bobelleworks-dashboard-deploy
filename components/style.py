@@ -24,9 +24,12 @@ COLORS = {
 def apply_style():
     st.markdown(
         """<style>
-        :root{--bw-navy:#14243a;--bw-blue:#3b82f6;--bw-text:#172033;--bw-muted:#778196;--bw-line:#e8edf5;--bw-bg:#f4f7fb}
+        :root{--bw-navy:#14243a;--bw-blue:#3b82f6;--bw-text:#172033;--bw-muted:#778196;--bw-line:#e8edf5;--bw-bg:#f4f7fb;--bw-section-gap:.9rem}
         .stApp{background:var(--bw-bg);color:var(--bw-text)}
         .block-container{padding:.65rem 1.55rem 1.35rem;max-width:none;width:100%}
+        /* Keep the spacing between major dashboard rows identical on every page. */
+        .block-container > div[data-testid="stVerticalBlock"],
+        .block-container > div > div[data-testid="stVerticalBlock"]{gap:var(--bw-section-gap)!important} /* top-level dashboard spacing */
         header[data-testid="stHeader"]{display:block!important;visibility:visible!important;background:transparent;height:2.2rem;z-index:1001}
         [data-testid="stToolbar"] button:not([data-testid="stExpandSidebarButton"]),[data-testid="stToolbar"] a{display:none!important}
         [data-testid="stExpandSidebarButton"]{background:#1c2c42!important;border-radius:7px!important;z-index:1002!important}
