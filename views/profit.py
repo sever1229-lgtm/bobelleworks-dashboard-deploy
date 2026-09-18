@@ -14,7 +14,6 @@ start,end,_=period_filter(f); monthly=f["월별실적"]
 m=monthly[monthly["월 시작"].between(start.to_period("M").start_time,end.to_period("M").start_time)].copy()
 sales=filter_dates(f["판매 및 반품"],"처리일",start,end); t=m.select_dtypes("number").sum(); rev=t.get("매출",0); rate=t.get("공헌이익",0)/rev if rev else 0
 metrics([("매출",won(rev),None),("매출원가",won(t.get("매출원가",0)),None),("판매부대비",won(t.get("판매 부대비",0)),None),("공헌이익",won(t.get("공헌이익",0)),"회계상 순이익과 다른 내부 운영 지표"),("공헌이익률",pct(rate),None),("운영비",won(t.get("운영비",0)),None),("관리손익",won(t.get("관리손익",0)),"세금·감가상각을 반영한 당기순이익과 다름")],7)
-st.write("")
 c1,c2=st.columns(2)
 with c1:
     with st.container(border=True):
