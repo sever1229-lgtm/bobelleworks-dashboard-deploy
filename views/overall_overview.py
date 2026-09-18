@@ -42,12 +42,17 @@ left, right = st.columns([1.6, 1], gap="small")
 with left:
     with st.container(border=True):
         section_title("월별 사업별 매출 추이")
-        long = trend.melt(
-            id_vars=["월 시작"], value_vars=["전체 매출", "쇼핑몰 매출", "통역 매출"],
-            var_name="구분", value_name="매출",
-        ) if len(trend) else pd.DataFrame(columns=["월 시작", "구분", "매출"])
+        revenue_columns = ["전체 매출", "쇼핑몰 매출", "통역 매출"]
+        trend_revenue = trend.copy()
+        for column in revenue_columns:
+            if column not in trend_revenue:
+                trend_revenue[column] = 0.0
+        long = trend_revenue.melt(
+            id_vars=["월 시작"], value_vars=revenue_columns,
+            var_name="구분", value_name="사업매출",
+        ) if len(trend_revenue) else pd.DataFrame(columns=["월 시작", "구분", "사업매출"])
         fig = px.bar(
-            long, x="월 시작", y="매출", color="구분", barmode="group",
+            long, x="월 시작", y="사업매출", color="구분", barmode="group",
             color_discrete_map={"전체 매출": COLORS["blue"], "쇼핑몰 매출": COLORS["green"], "통역 매출": COLORS["purple"]},
         )
         st.plotly_chart(chart_style(fig, 310), use_container_width=True, config={"displayModeBar": False})
