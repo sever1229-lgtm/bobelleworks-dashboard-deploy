@@ -134,10 +134,10 @@ def _date_axis_format(fig: go.Figure, attr: str):
     # Monthly dashboard series are stored as month-start timestamps.
     monthly = bool(((dates.dt.day == 1) & (dates.dt.hour == 0) & (dates.dt.minute == 0) & (dates.dt.second == 0)).all())
     if monthly:
-        return {"tickformat": "%Y-%m", "hoverformat": "%Y-%m", "dtick": "M1"}
+        return {"tickformat": "%y-%m", "hoverformat": "%y-%m", "dtick": "M1"}
 
     unique_days = dates.dt.normalize().nunique()
-    config = {"tickformat": "%Y-%m-%d", "hoverformat": "%Y-%m-%d"}
+    config = {"tickformat": "%y-%m-%d", "hoverformat": "%y-%m-%d"}
     # A single date otherwise gets fractional-day tick marks around midnight.
     if unique_days <= 1:
         config["dtick"] = 24 * 60 * 60 * 1000
