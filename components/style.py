@@ -122,6 +122,14 @@ def _axis_has_numeric_values(fig: go.Figure, attr: str) -> bool:
     return isinstance(first, Number) and not isinstance(first, bool)
 
 
+def _axis_has_string_values(fig: go.Figure, attr: str) -> bool:
+    values = _axis_values(fig, attr)
+    if not values:
+        return False
+    non_null = [value for value in values if value is not None]
+    return bool(non_null) and all(isinstance(value, str) for value in non_null)
+
+
 def _date_axis_format(fig: go.Figure, attr: str):
     values = _axis_values(fig, attr)
     if not values:
@@ -179,6 +187,8 @@ def chart_style(fig: go.Figure, height: int = 275, legend: bool = True) -> go.Fi
 
     numeric_x = _axis_has_numeric_values(fig, "x")
     numeric_y = _axis_has_numeric_values(fig, "y")
+    string_x = _axis_has_string_values(fig, "x")
+    string_y = _axis_has_string_values(fig, "y")
     date_x = _date_axis_format(fig, "x")
     date_y = _date_axis_format(fig, "y")
 
@@ -193,6 +203,9 @@ def chart_style(fig: go.Figure, height: int = 275, legend: bool = True) -> go.Fi
     )
     if date_x:
         x_kwargs.update(type="date", **date_x)
+    elif string_x:
+        # Prevent Plotly from auto-detecting values like "2026-09" as datetimes.
+        x_kwargs.update(type="category")
 
     y_kwargs = dict(
         gridcolor=COLORS["grid"],
@@ -205,6 +218,8 @@ def chart_style(fig: go.Figure, height: int = 275, legend: bool = True) -> go.Fi
     )
     if date_y:
         y_kwargs.update(type="date", **date_y)
+    elif string_y:
+        y_kwargs.update(type="category")
 
     fig.update_xaxes(**x_kwargs)
     fig.update_yaxes(**y_kwargs)
