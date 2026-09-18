@@ -45,8 +45,8 @@ def context():
             st.caption(f"데이터 기준: {data.loaded_at:%y-%m-%d %H:%M:%S}")
     return data
 
-def title(name,description):
+def title(name, description, eyebrow="BOBELLE WORKS"):
     st.markdown(
-        f'<div class="bw-head"><div><div class="bw-eyebrow">BOBELLE WORKS</div><div class="bw-title">{name}</div><div class="bw-sub">{description}</div></div></div>',
+        f'<div class="bw-head"><div><div class="bw-eyebrow">{eyebrow}</div><div class="bw-title">{name}</div><div class="bw-sub">{description}</div></div></div>',
         unsafe_allow_html=True,
     )
