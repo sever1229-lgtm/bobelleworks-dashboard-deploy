@@ -14,9 +14,13 @@ from services.validation import validate_aggregates
 
 d = context()
 f = d.frames
-head_left,head_right=st.columns([1.05,1.55],vertical_alignment="bottom")
+head_left,head_right=st.columns([1.12,1.48],vertical_alignment="bottom")
 with head_left:
-    title("Overview", "Bobelle Works의 매출, 수익성, 자금과 운영 상태를 한눈에 확인하세요.")
+    title_col, logo_col = st.columns([1.05, .75], vertical_alignment="center")
+    with title_col:
+        title("Overview", "Bobelle Works의 매출, 수익성, 자금과 운영 상태를 한눈에 확인하세요.")
+    with logo_col:
+        st.image("assets/smile_piccino_logo.png", width=185)
 with head_right:
     start, end, query = period_filter(f,show_search=False)
 
