@@ -22,7 +22,7 @@ def context():
     with st.container(key="bw_topbar"):
         search_col,user_col=st.columns([3.2,1],vertical_alignment="center")
         search_col.text_input("전체 검색",placeholder="상품명, 주문번호, SKU, 거래처 등을 검색하세요...",key="global_search",label_visibility="collapsed")
-        user_col.markdown(f'<div class="bw-user"><span>{now:%Y년 %m월 %d일}</span><span>●</span><span class="bw-avatar">B</span><b>보벨웍스<br><small>운영자</small></b></div>',unsafe_allow_html=True)
+        user_col.markdown(f'<div class="bw-user"><span>{now:%y년 %m월 %d일}</span><span>●</span><span class="bw-avatar">B</span><b>보벨웍스<br><small>운영자</small></b></div>',unsafe_allow_html=True)
     if data.sheet_timezone!=settings.timezone: st.caption(f"⚠ 시트 시간대 {data.sheet_timezone} · 날짜 비교는 한국시간 기준")
     with st.sidebar:
         with st.container(key="bw_sidebar_footer"):
@@ -42,7 +42,7 @@ def context():
                 st.session_state["cache_buster"] = st.session_state.get("cache_buster", 0) + 1
                 st.cache_data.clear()
                 st.rerun()
-            st.caption(f"데이터 기준: {data.loaded_at:%Y-%m-%d %H:%M:%S}")
+            st.caption(f"데이터 기준: {data.loaded_at:%y-%m-%d %H:%M:%S}")
     return data
 
 def title(name,description):
