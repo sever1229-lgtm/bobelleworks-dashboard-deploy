@@ -14,10 +14,48 @@ from services.interpretation import (
 
 d = context()
 f = d.frames
-title("통역 대시보드", "통역 프로젝트의 매출과 정산 진행 상태를 한눈에 확인하세요.")
 translation = interpretation_frame(f.get("통역 매출"))
 lo, hi = period_bounds(translation, d.settings.timezone)
-picked = st.date_input("조회 기간", (lo.date(), hi.date()), key="interpretation_overview_period")
+
+head_left, head_right = st.columns([1.12, 1.48], vertical_alignment="bottom")
+with head_left:
+    title(
+        "통역 대시보드",
+        "통역 프로젝트의 매출과 정산 진행 상태를 한눈에 확인하세요.",
+        eyebrow="BOBELLE WORKS",
+    )
+
+with head_right:
+    years = list(range(lo.year, hi.year + 1)) or [hi.year]
+    filter_cols = st.columns([.8, .8, 2.15], gap="small")
+    selected_year = filter_cols[0].selectbox(
+        "연도",
+        years,
+        index=len(years) - 1,
+        key="interpretation_overview_year",
+    )
+    selected_month = filter_cols[1].selectbox(
+        "월",
+        ["전체"] + list(range(1, 13)),
+        index=(hi.month if hi.year == selected_year else 0),
+        key="interpretation_overview_month",
+    )
+
+    default_start = pd.Timestamp(selected_year, 1 if selected_month == "전체" else selected_month, 1)
+    default_end = default_start + (
+        pd.offsets.YearEnd(0) if selected_month == "전체" else pd.offsets.MonthEnd(0)
+    )
+    range_start = max(default_start, lo)
+    range_end = min(default_end, hi) if default_end >= lo else default_end
+    if range_start > range_end:
+        range_start, range_end = default_start, default_end
+
+    picked = filter_cols[2].date_input(
+        "조회 기간",
+        (range_start.date(), range_end.date()),
+        key="interpretation_overview_period",
+    )
+
 start, end = selected_period(picked, lo, hi)
 selected = filter_interpretation(translation, start, end)
 summary = interpretation_metrics(selected)
@@ -77,7 +115,13 @@ with st.container(border=True):
     section_title("거래처별 매출")
     st.plotly_chart(
         chart_style(
-            px.bar(clients, x="통역 매출액", y="거래처 / 에이전시", orientation="h", color_discrete_sequence=[COLORS["purple"]]),
+            px.bar(
+                clients,
+                x="거래처 / 에이전시",
+                y="통역 매출액",
+                color_discrete_sequence=[COLORS["purple"]],
+                labels={"통역 매출액": "매출", "거래처 / 에이전시": "거래처"},
+            ),
             260, False,
         ),
         use_container_width=True,
