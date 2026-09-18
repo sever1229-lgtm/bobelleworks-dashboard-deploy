@@ -8,6 +8,7 @@ from services.interpretation import (
     interpretation_metrics,
     monthly_business_summary,
     selected_period,
+    venue_distribution,
 )
 
 
@@ -28,6 +29,7 @@ translation = interpretation_frame(pd.DataFrame({
     "업무구분": ["통역"],
     "거래처": ["테스트 거래처"],
     "프로젝트": ["테스트 행사"],
+    "장소": ["코엑스"],
     "매출액": [50_000],
     "원천징수 합계": [0],
     "실수령 예정액": [50_000],
@@ -68,6 +70,14 @@ frames = {
     "통번역 매출": pd.DataFrame({"업무일": pd.to_datetime(["2027-03-04"])}),
 }
 assert dashboard_date_bounds(frames) == (pd.Timestamp("2025-06-01"), pd.Timestamp("2027-03-04"))
+
+# Venue distribution is based on interpretation-job counts, not revenue.
+venue = venue_distribution(translation)
+assert venue.loc[0, "장소"] == "코엑스"
+assert venue.loc[0, "건수"] == 1
+assert venue.loc[0, "비중"] == 1.0
+assert len(filter_interpretation(translation, lo, hi, venues=["코엑스"])) == 1
+assert filter_interpretation(translation, lo, hi, venues=["킨텍스"]).empty
 
 # Empty and filtered states remain stable.
 empty = interpretation_frame(pd.DataFrame())

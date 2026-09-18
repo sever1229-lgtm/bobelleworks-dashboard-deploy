@@ -8,7 +8,7 @@ import pandas as pd
 INTERPRETATION_COLUMNS = [
     "업무일", "업무구분", "거래처 / 에이전시", "프로젝트 / 행사명", "통번역 매출액",
     "소득세 3%", "지방소득세 0.3%", "원천징수 합계 (자동)", "실수령 예정액 (자동)",
-    "지급명세서 여부", "입금상태", "메모",
+    "지급명세서 여부", "입금상태", "메모", "장소",
 ]
 
 _COLUMN_ALIASES = {
@@ -24,6 +24,7 @@ _COLUMN_ALIASES = {
     "지급명세서 여부": ("지급명세서 여부", "지급명세서"),
     "입금상태": ("입금상태", "정산상태", "입금 상태"),
     "메모": ("메모", "비고", "내용"),
+    "장소": ("장소", "업무장소", "행사장소", "장소구분"),
 }
 
 
@@ -79,7 +80,7 @@ def interpretation_frame(df: pd.DataFrame | None) -> pd.DataFrame:
         ~net_missing,
         fallback_net,
     )
-    for column in ["업무구분", "거래처 / 에이전시", "프로젝트 / 행사명", "지급명세서 여부", "입금상태", "메모"]:
+    for column in ["업무구분", "거래처 / 에이전시", "프로젝트 / 행사명", "지급명세서 여부", "입금상태", "메모", "장소"]:
         out[column] = out[column].fillna("").astype(str).str.strip()
     return out.dropna(how="all").reset_index(drop=True)
 
@@ -127,7 +128,8 @@ def selected_period(
 
 def filter_interpretation(
     df: pd.DataFrame, start: pd.Timestamp, end: pd.Timestamp,
-    types: Iterable[str] = (), clients: Iterable[str] = (), query: str = "",
+    types: Iterable[str] = (), clients: Iterable[str] = (), venues: Iterable[str] = (),
+    query: str = "",
 ) -> pd.DataFrame:
     out = df.copy()
     if not out.empty:
@@ -136,9 +138,25 @@ def filter_interpretation(
         out = out[out["업무구분"].isin(list(types))]
     if clients:
         out = out[out["거래처 / 에이전시"].isin(list(clients))]
+    if venues:
+        out = out[out["장소"].isin(list(venues))]
     if query:
         out = out[out.astype(str).apply(lambda col: col.str.contains(query, case=False, na=False)).any(axis=1)]
     return out
+
+
+def venue_distribution(df: pd.DataFrame) -> pd.DataFrame:
+    """Return interpretation-job counts and shares by venue, including missing venue data."""
+    if df.empty:
+        return pd.DataFrame(columns=["장소", "건수", "비중"])
+    work = df[df["업무구분"].eq("통역")].copy()
+    if work.empty:
+        return pd.DataFrame(columns=["장소", "건수", "비중"])
+    work["장소"] = work["장소"].fillna("").astype(str).str.strip().replace("", "미입력")
+    counts = work.groupby("장소", as_index=False).size().rename(columns={"size": "건수"})
+    total = counts["건수"].sum()
+    counts["비중"] = counts["건수"] / total if total else 0.0
+    return counts.sort_values(["건수", "장소"], ascending=[False, True]).reset_index(drop=True)
 
 
 def settlement_bucket(status: object) -> str:
