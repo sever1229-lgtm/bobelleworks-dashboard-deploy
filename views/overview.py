@@ -18,7 +18,7 @@ head_left,head_right=st.columns([1.12,1.48],vertical_alignment="bottom")
 with head_left:
     title_col, logo_col = st.columns([1.05, .75], vertical_alignment="center")
     with title_col:
-        title("Overview", "Bobelle Works의 매출, 수익성, 자금과 운영 상태를 한눈에 확인하세요.")
+        title("스마일피치노 대시보드", "스마일피치노의 매출, 수익성, 재고와 자금 운영 현황을 한눈에 확인하세요.", eyebrow="SMILE PICCINO")
     with logo_col:
         st.image("assets/smile_piccino_logo.png", width=185)
 with head_right:
