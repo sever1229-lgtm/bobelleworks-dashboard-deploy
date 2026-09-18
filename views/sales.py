@@ -12,7 +12,7 @@ start,end,query=period_filter(f); base=filter_dates(f["판매 및 반품"],"처�
 channels=multiselect(base,"판매채널","판매채널"); sales=search_rows(filter_text(base,{"판매채널":channels}),query)
 sold=sales[sales["구분"]=="판매"]; returns=sales[sales["구분"]=="반품"]; orders=sold["주문번호"].nunique(); revenue=sales["매출 합계"].sum()
 metrics([("총 주문건수",num(orders),None),("판매수량",num(sold["수량"].sum()),None),("반품건수",num(returns["주문번호"].nunique()),None),("순매출",won(revenue),None),("평균 주문금액",won(revenue/orders if orders else 0),None)],5)
-st.write(""); summary=channel_summary(sales)
+summary=channel_summary(sales)
 c1,c2=st.columns([1.2,1],gap="small")
 with c1:
     with st.container(border=True):
