@@ -5,7 +5,7 @@ import streamlit as st
 from components.filters import multiselect, period_filter, search_rows
 from components.insights import build, render
 from components.kpi_cards import metrics, pct, won
-from components.style import COLORS, chart_style, section_title
+from components.style import COLORS, chart_style, footnote, section_title
 from components.tables import show
 from runtime import context, title
 from services.calculations import filter_dates, filter_text
@@ -105,6 +105,6 @@ with compare_col:
         compare.add_bar(x=m["월 시작"], y=m["순현금흐름"], name="순현금흐름", marker_color=COLORS["green"])
         compare.update_layout(barmode="group")
         st.plotly_chart(chart_style(compare, 175), use_container_width=True, config={"displayModeBar": False})
-        st.caption("관리손익은 사업의 운영 수익성이고, 순현금흐름은 실제 현금 유입에서 유출을 뺀 값입니다.")
+        footnote("관리손익은 사업의 운영 수익성이고, 순현금흐름은 실제 현금 유입에서 유출을 뺀 값입니다.")
         today = pd.Timestamp.now(tz=d.settings.timezone).date()
         render(build(f, m, today)[:2])
