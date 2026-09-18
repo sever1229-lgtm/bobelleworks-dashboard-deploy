@@ -17,7 +17,7 @@ legacy_monthly = pd.DataFrame({
     "월 시작": pd.to_datetime(["2026-01-01"]),
     "매출": [100_000],
     "전체 매출": [100_000],
-    "쇼핑몰 매출": [100_000],
+    "스마일피치노 매출": [100_000],
     "통역 매출": [pd.NA],
     "공헌이익": [40_000],
     "전체 공헌이익": [40_000],
@@ -39,7 +39,7 @@ translation = interpretation_frame(pd.DataFrame({
 # P1: a synthesized legacy value must not hide project-level translation revenue.
 assert pd.isna(legacy_monthly.loc[0, "통역 매출"])
 combined = monthly_business_summary(legacy_monthly, translation)
-assert combined.loc[0, "쇼핑몰 매출"] == 100_000
+assert combined.loc[0, "스마일피치노 매출"] == 100_000
 assert combined.loc[0, "통역 매출"] == 50_000
 assert combined.loc[0, "전체 매출"] == 150_000
 assert combined.loc[0, "전체 공헌이익"] == 90_000
