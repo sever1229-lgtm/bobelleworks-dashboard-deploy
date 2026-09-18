@@ -6,7 +6,7 @@ import pandas as pd
 
 
 INTERPRETATION_COLUMNS = [
-    "업무일", "업무구분", "거래처 / 에이전시", "프로젝트 / 행사명", "통번역 매출액",
+    "업무일", "업무구분", "거래처 / 에이전시", "프로젝트 / 행사명", "통역 매출액",
     "소득세 3%", "지방소득세 0.3%", "원천징수 합계 (자동)", "실수령 예정액 (자동)",
     "지급명세서 여부", "입금상태", "메모", "장소",
 ]
@@ -16,7 +16,7 @@ _COLUMN_ALIASES = {
     "업무구분": ("업무구분", "구분", "업무 종류"),
     "거래처 / 에이전시": ("거래처 / 에이전시", "거래처/에이전시", "거래처", "에이전시"),
     "프로젝트 / 행사명": ("프로젝트 / 행사명", "프로젝트/행사명", "프로젝트", "행사명"),
-    "통번역 매출액": ("통번역 매출액", "통번역매출액", "매출액", "통역 매출액", "번역 매출액"),
+    "통역 매출액": ("통역 매출액", "통역매출액", "통번역 매출액", "통번역매출액", "매출액", "번역 매출액"),
     "소득세 3%": ("소득세 3%", "소득세"),
     "지방소득세 0.3%": ("지방소득세 0.3%", "지방소득세"),
     "원천징수 합계 (자동)": ("원천징수 합계 (자동)", "원천징수 합계", "원천징수액"),
@@ -64,18 +64,18 @@ def interpretation_frame(df: pd.DataFrame | None) -> pd.DataFrame:
     local_tax_missing = _missing(out["지방소득세 0.3%"])
     withholding_missing = _missing(out["원천징수 합계 (자동)"])
     net_missing = _missing(out["실수령 예정액 (자동)"])
-    for column in ["통번역 매출액", "소득세 3%", "지방소득세 0.3%", "원천징수 합계 (자동)", "실수령 예정액 (자동)"]:
+    for column in ["통역 매출액", "소득세 3%", "지방소득세 0.3%", "원천징수 합계 (자동)", "실수령 예정액 (자동)"]:
         out[column] = out[column].map(_number)
 
     # Sheet formulas are the source of truth. These fallbacks only make incomplete rows usable.
     tax_sum = out["소득세 3%"] + out["지방소득세 0.3%"]
     tax_parts_present = ~(income_tax_missing & local_tax_missing)
-    fallback_tax = tax_sum.where(tax_parts_present, out["통번역 매출액"] * 0.033)
+    fallback_tax = tax_sum.where(tax_parts_present, out["통역 매출액"] * 0.033)
     out["원천징수 합계 (자동)"] = out["원천징수 합계 (자동)"].where(
         ~withholding_missing,
         tax_sum.where(tax_sum.ne(0), fallback_tax),
     )
-    fallback_net = out["통번역 매출액"] - out["원천징수 합계 (자동)"]
+    fallback_net = out["통역 매출액"] - out["원천징수 합계 (자동)"]
     out["실수령 예정액 (자동)"] = out["실수령 예정액 (자동)"].where(
         ~net_missing,
         fallback_net,
@@ -100,7 +100,7 @@ def dashboard_date_bounds(
     dates: list[object] = []
     for name, column in [
         ("판매 및 반품", "처리일"), ("운영비", "발생일"),
-        ("입출금", "거래일"), ("통번역 매출", "업무일"),
+        ("입출금", "거래일"), ("통역 매출", "업무일"),
     ]:
         frame = frames.get(name)
         if frame is not None and column in frame:
@@ -149,9 +149,7 @@ def venue_distribution(df: pd.DataFrame) -> pd.DataFrame:
     """Return interpretation-job counts and shares by venue, including missing venue data."""
     if df.empty:
         return pd.DataFrame(columns=["장소", "건수", "비중"])
-    work = df[df["업무구분"].eq("통역")].copy()
-    if work.empty:
-        return pd.DataFrame(columns=["장소", "건수", "비중"])
+    work = df.copy()
     work["장소"] = work["장소"].fillna("").astype(str).str.strip().replace("", "미입력")
     counts = work.groupby("장소", as_index=False).size().rename(columns={"size": "건수"})
     total = counts["건수"].sum()
@@ -186,7 +184,7 @@ def with_status_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 def interpretation_metrics(df: pd.DataFrame) -> dict[str, float]:
     checked = with_status_columns(df)
-    revenue = float(checked["통번역 매출액"].sum()) if "통번역 매출액" in checked else 0.0
+    revenue = float(checked["통역 매출액"].sum()) if "통역 매출액" in checked else 0.0
     withholding = float(checked["원천징수 합계 (자동)"].sum()) if "원천징수 합계 (자동)" in checked else 0.0
     net = float(checked["실수령 예정액 (자동)"].sum()) if "실수령 예정액 (자동)" in checked else 0.0
     unsettled = float(checked.loc[checked["정산구분"] != "입금완료", "실수령 예정액 (자동)"].sum()) if len(checked) else 0.0
@@ -209,11 +207,11 @@ def monthly_business_summary(monthly: pd.DataFrame, interpretation: pd.DataFrame
     if not trans.empty:
         trans = trans.dropna(subset=["업무일"]).copy()
         trans["월 시작"] = trans["업무일"].dt.to_period("M").dt.to_timestamp()
-        trans = trans.groupby("월 시작", as_index=False)["통번역 매출액"].sum()
+        trans = trans.groupby("월 시작", as_index=False)["통역 매출액"].sum()
     else:
         trans = pd.DataFrame({
             "월 시작": pd.Series(dtype="datetime64[ns]"),
-            "통번역 매출액": pd.Series(dtype=float),
+            "통역 매출액": pd.Series(dtype=float),
         })
 
     out = base.merge(trans, on="월 시작", how="outer", suffixes=("", "_원천"))
@@ -222,39 +220,39 @@ def monthly_business_summary(monthly: pd.DataFrame, interpretation: pd.DataFrame
             return pd.to_numeric(out[name], errors="coerce").fillna(default)
         return pd.Series(default, index=out.index, dtype=float)
 
-    if "통번역 매출액_원천" in out:
-        derived = out["통번역 매출액_원천"].fillna(0)
-    elif "통번역 매출액" in out:
-        derived = out["통번역 매출액"].fillna(0)
+    if "통역 매출액_원천" in out:
+        derived = out["통역 매출액_원천"].fillna(0)
+    elif "통역 매출액" in out:
+        derived = out["통역 매출액"].fillna(0)
     else:
         derived = pd.Series(0.0, index=out.index)
-    if "통번역 매출" in out:
-        out["통번역 매출"] = pd.to_numeric(out["통번역 매출"], errors="coerce").fillna(derived)
+    if "통역 매출" in out:
+        out["통역 매출"] = pd.to_numeric(out["통역 매출"], errors="coerce").fillna(derived)
     else:
-        out["통번역 매출"] = derived
+        out["통역 매출"] = derived
     out["쇼핑몰 매출"] = numeric_column("쇼핑몰 매출") if "쇼핑몰 매출" in out else numeric_column("매출")
     if "전체 매출" in out:
         overall = pd.to_numeric(out["전체 매출"], errors="coerce")
         # Legacy loaders expose 전체 매출=쇼핑몰 매출. When a new translation
         # row exists, derive the combined amount until the sheet formula is filled.
-        fallback = out["쇼핑몰 매출"] + out["통번역 매출"]
+        fallback = out["쇼핑몰 매출"] + out["통역 매출"]
         out["전체 매출"] = overall.where(
-            overall.notna() & ~((overall == out["쇼핑몰 매출"]) & out["통번역 매출"].ne(0)),
+            overall.notna() & ~((overall == out["쇼핑몰 매출"]) & out["통역 매출"].ne(0)),
             fallback,
         )
     else:
-        out["전체 매출"] = out["쇼핑몰 매출"] + out["통번역 매출"]
+        out["전체 매출"] = out["쇼핑몰 매출"] + out["통역 매출"]
 
     shop_contribution = numeric_column("공헌이익")
     shop_management = numeric_column("관리손익")
     contribution = numeric_column("전체 공헌이익") if "전체 공헌이익" in out else shop_contribution
     management = numeric_column("전체 관리손익") if "전체 관리손익" in out else shop_management
     out["전체 공헌이익"] = contribution.where(
-        contribution.notna() & ~((contribution == shop_contribution) & out["통번역 매출"].ne(0)),
-        shop_contribution + out["통번역 매출"],
+        contribution.notna() & ~((contribution == shop_contribution) & out["통역 매출"].ne(0)),
+        shop_contribution + out["통역 매출"],
     )
     out["전체 관리손익"] = management.where(
-        management.notna() & ~((management == shop_management) & out["통번역 매출"].ne(0)),
-        shop_management + out["통번역 매출"],
+        management.notna() & ~((management == shop_management) & out["통역 매출"].ne(0)),
+        shop_management + out["통역 매출"],
     )
     return out.sort_values("월 시작").reset_index(drop=True)

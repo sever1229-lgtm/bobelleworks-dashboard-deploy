@@ -12,10 +12,10 @@ from services.interpretation import interpretation_frame, monthly_business_summa
 
 d = context()
 f = d.frames
-title("전체 대시보드", "쇼핑몰과 통번역 사업의 매출, 수익성 및 자금 흐름을 통합해서 확인하세요.")
+title("전체 대시보드", "쇼핑몰과 통역 사업의 매출, 수익성 및 자금 흐름을 통합해서 확인하세요.")
 start, end, _ = period_filter(f, show_search=False)
 
-translation = interpretation_frame(f.get("통번역 매출"))
+translation = interpretation_frame(f.get("통역 매출"))
 monthly = monthly_business_summary(f["월별실적"], translation)
 selected = monthly[monthly["월 시작"].between(start.to_period("M").start_time, end.to_period("M").start_time)].copy()
 trend = monthly[monthly["월 시작"] <= end.to_period("M").start_time].tail(12).copy()
@@ -24,15 +24,15 @@ totals = selected.select_dtypes("number").sum() if len(selected) else pd.Series(
 cash = float(selected.iloc[-1]["월말 자금"]) if len(selected) and "월말 자금" in selected else 0.0
 total_revenue = totals.get("전체 매출", 0.0)
 shop_revenue = totals.get("쇼핑몰 매출", 0.0)
-translation_revenue = totals.get("통번역 매출", 0.0)
+translation_revenue = totals.get("통역 매출", 0.0)
 
 metrics(
     [
         ("전체 매출", won(total_revenue), "월별실적의 전체 매출 기준"),
         ("쇼핑몰 매출", won(shop_revenue), "쇼핑몰 사업 매출"),
-        ("통번역 매출", won(translation_revenue), "원천징수 전 통번역 매출"),
-        ("전체 공헌이익", won(totals.get("전체 공헌이익", 0)), "통번역 직접비 미입력 시 매출을 반영"),
-        ("전체 관리손익", won(totals.get("전체 관리손익", 0)), "통번역 개별 비용 미입력 기준"),
+        ("통역 매출", won(translation_revenue), "원천징수 전 통역 매출"),
+        ("전체 공헌이익", won(totals.get("전체 공헌이익", 0)), "통역 직접비 미입력 시 매출을 반영"),
+        ("전체 관리손익", won(totals.get("전체 관리손익", 0)), "통역 개별 비용 미입력 기준"),
         ("현재자금", won(cash), "선택 기간 마지막 월말 자금"),
     ],
     6,
@@ -43,19 +43,19 @@ with left:
     with st.container(border=True):
         section_title("월별 사업별 매출 추이")
         long = trend.melt(
-            id_vars=["월 시작"], value_vars=["전체 매출", "쇼핑몰 매출", "통번역 매출"],
+            id_vars=["월 시작"], value_vars=["전체 매출", "쇼핑몰 매출", "통역 매출"],
             var_name="구분", value_name="매출",
         ) if len(trend) else pd.DataFrame(columns=["월 시작", "구분", "매출"])
         fig = px.bar(
             long, x="월 시작", y="매출", color="구분", barmode="group",
-            color_discrete_map={"전체 매출": COLORS["blue"], "쇼핑몰 매출": COLORS["green"], "통번역 매출": COLORS["purple"]},
+            color_discrete_map={"전체 매출": COLORS["blue"], "쇼핑몰 매출": COLORS["green"], "통역 매출": COLORS["purple"]},
         )
         st.plotly_chart(chart_style(fig, 310), use_container_width=True, config={"displayModeBar": False})
 
 with right:
     with st.container(border=True):
-        section_title("쇼핑몰 vs 통번역 매출 비중")
-        mix = pd.DataFrame({"사업": ["쇼핑몰", "통번역"], "매출": [shop_revenue, translation_revenue]})
+        section_title("쇼핑몰 vs 통역 매출 비중")
+        mix = pd.DataFrame({"사업": ["쇼핑몰", "통역"], "매출": [shop_revenue, translation_revenue]})
         display = mix if mix["매출"].abs().sum() else pd.DataFrame({"사업": ["데이터 없음"], "매출": [1]})
         fig = go.Figure(go.Pie(
             labels=display["사업"], values=display["매출"].abs(), hole=.66, textinfo="none",
@@ -63,7 +63,7 @@ with right:
         ))
         fig.add_annotation(text=won(total_revenue), x=.5, y=.5, showarrow=False, font=dict(size=13, color=COLORS["text"]))
         st.plotly_chart(chart_style(fig, 310), use_container_width=True, config={"displayModeBar": False})
-        st.caption("매출은 쇼핑몰과 통번역 모두 세전 기준으로 표시합니다.")
+        st.caption("매출은 쇼핑몰과 통역 모두 세전 기준으로 표시합니다.")
 
 with st.container(border=True):
     section_title("월별 전체 수익성 및 현금흐름")
@@ -75,4 +75,4 @@ with st.container(border=True):
     )
     st.plotly_chart(chart_style(fig, 265), use_container_width=True, config={"displayModeBar": False})
 
-st.info("통번역 매출은 원천징수 전 금액입니다. 원천징수액은 비용으로 차감하지 않으며, 실제 현금 유입은 입출금 시트의 ‘통번역수입’ 기록을 기준으로 자금에 반영됩니다.")
+st.info("통역 매출은 원천징수 전 금액입니다. 원천징수액은 비용으로 차감하지 않으며, 실제 현금 유입은 입출금 시트의 ‘통역수입’ 기록을 기준으로 자금에 반영됩니다.")

@@ -12,7 +12,7 @@ from services.interpretation import filter_interpretation, interpretation_frame,
 d = context()
 f = d.frames
 title("정산 현황", "입금상태와 지급명세서 확인 여부를 프로젝트별로 점검하세요.")
-translation = interpretation_frame(f.get("통번역 매출"))
+translation = interpretation_frame(f.get("통역 매출"))
 lo, hi = period_bounds(translation, d.settings.timezone)
 picked = st.date_input("조회 기간", (lo.date(), hi.date()), key="settlements_period")
 start, end = selected_period(picked, lo, hi)
@@ -50,5 +50,5 @@ with c2:
         show(pending.sort_values("업무일", ascending=False)[columns], currency=["실수령 예정액 (자동)"], height=260)
 
 section_title("전체 정산 내역")
-columns = ["업무일", "업무구분", "거래처 / 에이전시", "프로젝트 / 행사명", "통번역 매출액", "원천징수 합계 (자동)", "실수령 예정액 (자동)", "정산구분", "지급명세서 여부", "입금상태"]
-show(selected.sort_values("업무일", ascending=False)[columns], currency=["통번역 매출액", "원천징수 합계 (자동)", "실수령 예정액 (자동)"])
+columns = ["업무일", "업무구분", "거래처 / 에이전시", "프로젝트 / 행사명", "통역 매출액", "원천징수 합계 (자동)", "실수령 예정액 (자동)", "정산구분", "지급명세서 여부", "입금상태"]
+show(selected.sort_values("업무일", ascending=False)[columns], currency=["통역 매출액", "원천징수 합계 (자동)", "실수령 예정액 (자동)"])

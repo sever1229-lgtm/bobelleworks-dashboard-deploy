@@ -12,7 +12,7 @@ from services.interpretation import interpretation_frame, period_bounds, filter_
 d = context()
 f = d.frames
 title("거래처 관리", "거래처·에이전시별 프로젝트 실적과 미정산 금액을 관리하세요.")
-translation = interpretation_frame(f.get("통번역 매출"))
+translation = interpretation_frame(f.get("통역 매출"))
 lo, hi = period_bounds(translation, d.settings.timezone)
 picked = st.date_input("조회 기간", (lo.date(), hi.date()), key="clients_period")
 start, end = selected_period(picked, lo, hi)
@@ -21,8 +21,8 @@ selected = with_status_columns(filter_interpretation(translation, start, end))
 if len(selected):
     clients = selected.groupby("거래처 / 에이전시", dropna=False).agg(
         프로젝트수=("프로젝트 / 행사명", "size"),
-        누적매출=("통번역 매출액", "sum"),
-        평균프로젝트금액=("통번역 매출액", "mean"),
+        누적매출=("통역 매출액", "sum"),
+        평균프로젝트금액=("통역 매출액", "mean"),
         미정산금액=("실수령 예정액 (자동)", lambda values: values.loc[values.index.intersection(selected.index[selected["정산구분"] != "입금완료"])].sum()),
     ).reset_index()
     # Recalculate the conditional amount directly to preserve grouping semantics with repeated client names.

@@ -69,11 +69,12 @@ def _add_monthly_compatibility_columns(df: pd.DataFrame) -> pd.DataFrame:
         out["전체 매출"] = out["매출"]
     if "쇼핑몰 매출" not in out:
         out["쇼핑몰 매출"] = out.get("매출", out.get("전체 매출", 0))
-    if "통번역 매출" not in out:
-        # Keep a missing legacy column distinguishable from an explicit zero in
-        # the expanded sheet. The integrated summary can then fill it from the
-        # project-level interpretation sheet without overwriting real values.
-        out["통번역 매출"] = pd.NA
+    if "통역 매출" not in out:
+        # Backward compatibility for workbooks created before the interpretation-only naming.
+        if "통번역 매출" in out:
+            out["통역 매출"] = out["통번역 매출"]
+        else:
+            out["통역 매출"] = pd.NA
     # Existing shopping-mall pages and validation intentionally continue to use "매출".
     if "매출" not in out:
         out["매출"] = out.get("쇼핑몰 매출", out.get("전체 매출", 0))

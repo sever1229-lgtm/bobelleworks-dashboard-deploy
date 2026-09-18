@@ -16,8 +16,8 @@ pages = {
         st.Page("views/expenses.py", title="비용", icon="💳"),
         st.Page("views/cashflow.py", title="자금", icon="🏦"),
     ],
-    "통번역": [
-        st.Page("views/interpretation_overview.py", title="통번역 대시보드", icon="🌐"),
+    "통역": [
+        st.Page("views/interpretation_overview.py", title="통역 대시보드", icon="🌐"),
         st.Page("views/interpretation_sales.py", title="매출 분석", icon="📈"),
         st.Page("views/interpretation_projects.py", title="프로젝트·매출 내역", icon="🗂️"),
         st.Page("views/clients.py", title="거래처 관리", icon="🤝"),
