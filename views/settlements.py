@@ -14,7 +14,8 @@ f = d.frames
 title("정산 현황", "입금상태와 지급명세서 확인 여부를 프로젝트별로 점검하세요.")
 translation = interpretation_frame(f.get("통역 매출"))
 lo, hi = period_bounds(translation, d.settings.timezone)
-picked = st.date_input("조회 기간", (lo.date(), hi.date()), key="settlements_period")
+default_start = hi.to_period("M").start_time
+picked = st.date_input("조회 기간", (default_start.date(), hi.date()), key="settlements_period")
 start, end = selected_period(picked, lo, hi)
 selected = with_status_columns(filter_interpretation(translation, start, end))
 
