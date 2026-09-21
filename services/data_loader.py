@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from typing import Any
 
 import pandas as pd
@@ -147,7 +148,7 @@ def _load_uncached(spreadsheet_id: str, timezone: str, cache_buster: int) -> Das
         frames[name] = normalize_frame(name, _to_frame(read_range(book, name, a1)))
 
     frames["대시보드"] = pd.DataFrame([_dashboard_settings(book)])
-    return DashboardData(frames, spreadsheet_timezone(book), datetime.now(), settings)
+    return DashboardData(frames, spreadsheet_timezone(book), datetime.now(ZoneInfo(timezone)), settings)
 
 
 @st.cache_data(ttl=Settings().cache_ttl, show_spinner="Google Sheets에서 최신 데이터를 불러오는 중입니다...")
