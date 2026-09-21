@@ -7,18 +7,22 @@ from services.interpretation import dashboard_date_bounds
 def period_filter(frames,show_search=True):
     lo,hi=dashboard_date_bounds(frames)
     today=pd.Timestamp.now(tz="Asia/Seoul").tz_localize(None).normalize()
-    years=list(range(lo.year,hi.year+1)) or [today.year]
+    max_year=max(hi.year,today.year)
+    years=list(range(lo.year,max_year+1)) or [today.year]
     with st.container(border=False):
         cols=st.columns([.8,.8,2.15,1.75] if show_search else [.8,.8,2.15],gap="small")
         c1,c2,c3=cols[:3]
-        year=c1.selectbox("연도",years,index=len(years)-1)
-        month=c2.selectbox("월",["전체"]+list(range(1,13)),index=(hi.month if hi.year==year else 0))
+        year=c1.selectbox("연도",years,index=(years.index(today.year) if today.year in years else len(years)-1))
+        month=c2.selectbox("월",["전체"]+list(range(1,13)),index=(today.month if today.year==year else 0))
         default_start=pd.Timestamp(year,1 if month=="전체" else month,1)
         default_end=default_start+(pd.offsets.YearEnd(0) if month=="전체" else pd.offsets.MonthEnd(0))
         # Default query range always begins on the first day of the selected month/year.
         # Do not move the start date forward to the first date that happens to contain data.
         a=default_start
-        b=min(default_end,hi) if default_end>=lo else default_end
+        if year==today.year and (month=="전체" or month==today.month):
+            b=min(default_end,today)
+        else:
+            b=default_end
         if a>b: a,b=default_start,default_end
         picked=c3.date_input("조회 기간",(a.date(),b.date()))
         query=cols[3].text_input("통합 검색",placeholder="주문번호, 상품, SKU…") if show_search else st.session_state.get("global_search","")
