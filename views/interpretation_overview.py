@@ -45,7 +45,7 @@ with head_right:
     default_end = default_start + (
         pd.offsets.YearEnd(0) if selected_month == "전체" else pd.offsets.MonthEnd(0)
     )
-    range_start = max(default_start, lo)
+    range_start = default_start
     range_end = min(default_end, hi) if default_end >= lo else default_end
     if range_start > range_end:
         range_start, range_end = default_start, default_end
