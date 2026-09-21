@@ -13,7 +13,8 @@ title("프로젝트·매출 내역", "업무일과 거래처, 프로젝트 단�
 translation = interpretation_frame(f.get("통역 매출"))
 lo, hi = period_bounds(translation, d.settings.timezone)
 filters = st.columns(5, gap="small")
-picked = filters[0].date_input("업무 기간", (lo.date(), hi.date()), key="interpretation_projects_period")
+default_start = hi.to_period("M").start_time
+picked = filters[0].date_input("업무 기간", (default_start.date(), hi.date()), key="interpretation_projects_period")
 types = filters[1].multiselect("업무구분", sorted(value for value in translation["업무구분"].unique() if value))
 clients = filters[2].multiselect("거래처 / 에이전시", sorted(value for value in translation["거래처 / 에이전시"].unique() if value))
 venues = filters[3].multiselect("장소", sorted(value for value in translation["장소"].unique() if value))
