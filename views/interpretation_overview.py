@@ -16,6 +16,7 @@ d = context()
 f = d.frames
 translation = interpretation_frame(f.get("통역 매출"))
 lo, hi = period_bounds(translation, d.settings.timezone)
+reference_date = pd.Timestamp.now(tz=d.settings.timezone).tz_localize(None).normalize()
 
 head_left, head_right = st.columns([1.12, 1.48], vertical_alignment="bottom")
 with head_left:
@@ -26,18 +27,19 @@ with head_left:
     )
 
 with head_right:
-    years = list(range(lo.year, hi.year + 1)) or [hi.year]
+    max_year = max(hi.year, reference_date.year)
+    years = list(range(lo.year, max_year + 1)) or [reference_date.year]
     filter_cols = st.columns([.8, .8, 2.15], gap="small")
     selected_year = filter_cols[0].selectbox(
         "연도",
         years,
-        index=len(years) - 1,
+        index=(years.index(reference_date.year) if reference_date.year in years else len(years) - 1),
         key="interpretation_overview_year",
     )
     selected_month = filter_cols[1].selectbox(
         "월",
         ["전체"] + list(range(1, 13)),
-        index=(hi.month if hi.year == selected_year else 0),
+        index=(reference_date.month if reference_date.year == selected_year else 0),
         key="interpretation_overview_month",
     )
 
@@ -46,7 +48,10 @@ with head_right:
         pd.offsets.YearEnd(0) if selected_month == "전체" else pd.offsets.MonthEnd(0)
     )
     range_start = default_start
-    range_end = min(default_end, hi) if default_end >= lo else default_end
+    if selected_year == reference_date.year and (selected_month == "전체" or selected_month == reference_date.month):
+        range_end = min(default_end, reference_date)
+    else:
+        range_end = default_end
     if range_start > range_end:
         range_start, range_end = default_start, default_end
 
