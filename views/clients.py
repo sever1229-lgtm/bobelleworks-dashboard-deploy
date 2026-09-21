@@ -43,8 +43,22 @@ metrics(
 
 with st.container(border=True):
     section_title("거래처별 매출")
-    chart = clients.sort_values("누적매출", ascending=True).tail(12)
-    st.plotly_chart(chart_style(px.bar(chart, x="누적매출", y="거래처 / 에이전시", orientation="h", color_discrete_sequence=[COLORS["blue"]]), 280, False), use_container_width=True, config={"displayModeBar": False})
+    chart = clients.sort_values("누적매출", ascending=False).head(12)
+    st.plotly_chart(
+        chart_style(
+            px.bar(
+                chart,
+                x="거래처 / 에이전시",
+                y="누적매출",
+                color_discrete_sequence=[COLORS["blue"]],
+                labels={"거래처 / 에이전시": "거래처", "누적매출": "매출"},
+            ),
+            280,
+            False,
+        ),
+        use_container_width=True,
+        config={"displayModeBar": False},
+    )
 
 section_title("거래처별 정산 요약")
 show(clients.sort_values("누적매출", ascending=False), currency=["누적매출", "평균프로젝트금액", "미정산금액"])
