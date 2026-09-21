@@ -14,7 +14,8 @@ f = d.frames
 title("통역 매출 분석", "업무구분과 월별 기준으로 통역 매출을 분석합니다.")
 translation = interpretation_frame(f.get("통역 매출"))
 lo, hi = period_bounds(translation, d.settings.timezone)
-picked = st.date_input("조회 기간", (lo.date(), hi.date()), key="interpretation_sales_period")
+default_start = hi.to_period("M").start_time
+picked = st.date_input("조회 기간", (default_start.date(), hi.date()), key="interpretation_sales_period")
 start, end = selected_period(picked, lo, hi)
 types = st.multiselect("업무구분", sorted(value for value in translation["업무구분"].unique() if value))
 selected = filter_interpretation(translation, start, end, types=types)
