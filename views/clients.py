@@ -14,8 +14,9 @@ f = d.frames
 title("거래처 관리", "거래처·에이전시별 프로젝트 실적과 미정산 금액을 관리하세요.")
 translation = interpretation_frame(f.get("통역 매출"))
 lo, hi = period_bounds(translation, d.settings.timezone)
-default_start = hi.to_period("M").start_time
-picked = st.date_input("조회 기간", (default_start.date(), hi.date()), key="clients_period")
+reference_date = pd.Timestamp.now(tz=d.settings.timezone).tz_localize(None).normalize()
+default_start = reference_date.to_period("M").start_time
+picked = st.date_input("조회 기간", (default_start.date(), reference_date.date()), key="clients_period")
 start, end = selected_period(picked, lo, hi)
 selected = with_status_columns(filter_interpretation(translation, start, end))
 
