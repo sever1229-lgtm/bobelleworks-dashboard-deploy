@@ -15,7 +15,8 @@ f = d.frames
 title("발주", "발주 실적과 향후 예정 발주, 입고 잔량과 납기 위험을 관리합니다.")
 
 start, end, query = period_filter(f)
-today = pd.Timestamp.now(tz=d.settings.timezone).date()
+today_ts = pd.Timestamp.now(tz=d.settings.timezone).tz_localize(None).normalize()
+today = today_ts.date()
 
 orders = f["발주"].copy()
 if "발주상태" not in orders.columns:
@@ -39,7 +40,7 @@ po = search_rows(filter_text(actual_base, {"거래처": vendors}), query)
 planned = orders[orders["발주상태"] == "예정"].copy()
 planned = search_rows(filter_text(planned, {"거래처": vendors}), query)
 planned_dates = pd.to_datetime(planned["발주일"], errors="coerce")
-overdue_planned = planned[pd.notna(planned_dates) & (planned_dates.dt.date < today)]
+overdue_planned = planned[planned_dates.notna() & (planned_dates.dt.normalize() < today_ts)]
 
 late = delayed_orders(po, today)
 
@@ -64,7 +65,7 @@ po.loc[po.index.isin(late.index), "표시상태"] = "납기 확인"
 
 with st.container(border=True):
     section_title("향후 발주 예정")
-    future_dates = planned_dates[pd.notna(planned_dates) & (planned_dates.dt.date >= today)]
+    future_dates = planned_dates[planned_dates.notna() & (planned_dates.dt.normalize() >= today_ts)]
     next_order_date = future_dates.min().strftime("%y-%m-%d") if not future_dates.empty else "-"
     mini_metrics(
         [
