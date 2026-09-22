@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-from components.kpi_cards import metrics, num, won
+from components.kpi_cards import metric_card, num, split_metric_card, won
 from components.tables import show
 from runtime import context, title
 from services.interpretation import filter_interpretation, interpretation_frame, interpretation_metrics, period_bounds, selected_period
@@ -24,15 +24,18 @@ start, end = selected_period(picked, lo, hi)
 selected = filter_interpretation(translation, start, end, types=types, clients=clients, venues=venues, query=query)
 summary = interpretation_metrics(selected)
 
-metrics(
-    [
-        ("프로젝트 수", num(summary["프로젝트 수"]), "필터 적용 행 수"),
-        ("통역 매출", won(summary["매출"]), "원천징수 전 매출"),
-        ("실수령 예정액", won(summary["실수령 예정액"]), "매출−원천징수"),
-        ("미정산 금액", won(summary["미정산 금액"]), "입금완료 외 실수령 예정액"),
-    ],
-    4,
-)
+kpi_cols = st.columns([1.35, 1, 1, 1], gap="small")
+with kpi_cols[0]:
+    split_metric_card(
+        ("통역 건수", num(summary["통역 건수"]), "필터 적용 통역 행 수"),
+        ("프로젝트 수", num(summary["프로젝트 수"]), "고유 프로젝트명 수"),
+    )
+with kpi_cols[1]:
+    metric_card("통역 매출", won(summary["매출"]), "원천징수 전 매출", 1)
+with kpi_cols[2]:
+    metric_card("실수령 예정액", won(summary["실수령 예정액"]), "매출−원천징수", 2)
+with kpi_cols[3]:
+    metric_card("미정산 금액", won(summary["미정산 금액"]), "입금완료 외 실수령 예정액", 3)
 
 columns = [
     "업무일", "업무구분", "거래처 / 에이전시", "프로젝트 / 행사명", "장소", "통역 매출액",
