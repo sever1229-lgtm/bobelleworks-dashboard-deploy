@@ -22,6 +22,7 @@ ICONS = {
     "현재자금": "₩", "재고자산": "▦", "현재고": "▤", "보충 필요 SKU": "!",
     "미입고수량": "↘", "입력 오류": "!", "입금": "+", "출금": "−",
     "순현금흐름": "↕", "시작 기초자금": "◇", "현금흐름률": "%",
+    "통역 건수": "▣", "프로젝트 수": "▤",
 }
 
 
@@ -50,3 +51,36 @@ def mini_metrics(items):
         for label, value in items
     )
     st.markdown(f'<div class="bw-mini-grid">{cards}</div>', unsafe_allow_html=True)
+
+
+def split_metric_card(left_item, right_item):
+    """Render two compact KPI values inside one standard KPI card."""
+    def block(item, accent):
+        label, value, help_text = item
+        icon = ICONS.get(label, "•")
+        helper = help_text or "선택 기간 기준"
+        return f"""
+        <div class="bw-split-kpi-item bw-split-accent-{accent}">
+          <div class="bw-kpi-top"><span class="bw-kpi-icon">{escape(icon)}</span><span class="bw-kpi-label">{escape(label)}</span></div>
+          <div class="bw-kpi-value">{escape(str(value))}</div>
+          <div class="bw-kpi-help">{escape(helper)}</div>
+        </div>
+        """
+    html = f'<div class="bw-kpi bw-kpi-split">{block(left_item, 0)}{block(right_item, 1)}</div>'
+    st.markdown(html, unsafe_allow_html=True)
+
+
+def metric_card(label, value, help_text=None, accent=0):
+    icon = ICONS.get(label, "•")
+    helper = help_text or "선택 기간 기준"
+    points = [24, 17, 20, 18, 21, 14, 17, 8]
+    coords = " ".join(f"{n * 14},{y}" for n, y in enumerate(points))
+    stroke = ["#4f8ef7", "#29b88a", "#b36cf3", "#f05e82", "#f2a252", "#4f8ef7"][accent % 6]
+    html = f"""
+    <div class="bw-kpi bw-accent-{accent % 6}" title="{escape(helper)}">
+      <div class="bw-kpi-top"><span class="bw-kpi-icon">{escape(icon)}</span><span class="bw-kpi-label">{escape(label)}</span></div>
+      <div class="bw-kpi-value">{escape(str(value))}</div>
+      <div class="bw-kpi-help">{escape(helper)}</div>
+      <div class="bw-spark"><svg viewBox="0 0 100 30" preserveAspectRatio="none"><polygon points="0,30 {coords} 98,30" fill="{stroke}"/><path d="M {coords.replace(' ', ' L ')}" stroke="{stroke}"/></svg></div>
+    </div>"""
+    st.markdown(html, unsafe_allow_html=True)
