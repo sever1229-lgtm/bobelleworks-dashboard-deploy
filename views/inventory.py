@@ -1,3 +1,4 @@
+import pandas as pd
 import plotly.express as px
 import streamlit as st
 from components.filters import multiselect,period_filter,search_rows
@@ -12,8 +13,10 @@ status=st.selectbox("재고 상태",["전체","보충 필요 우선","보충 필
 if status=="보충 필요 우선": inv["_priority"]=inv["상태"].map({"음수재고 확인":0,"보충 필요":1}).fillna(2); inv=inv.sort_values(["_priority","보충 필요수량"],ascending=[True,False])
 elif status=="정상": inv=inv[inv["상태"].fillna("")==""]
 elif status!="전체": inv=inv[inv["상태"]==status]
-inv=search_rows(inv,query); po=f["발주"]
-metrics([("현재고",num(f["재고현황"]["현재고"].sum()),None),("재고자산",won(f["재고현황"]["참고 재고가액"].sum()),None),("보충 필요 SKU",num((f["재고현황"]["상태"]=="보충 필요").sum()),None),("음수재고 SKU",num((f["재고현황"]["상태"]=="음수재고 확인").sum()),None),("미입고수량",num(po["미입고수량"].sum()),None)],5)
+inv=search_rows(inv,query); po=f["발주"].copy()
+if "발주상태" in po:
+    po=po[po["발주상태"].fillna("").astype(str).str.strip().eq("발주완료")]
+metrics([("현재고",num(f["재고현황"]["현재고"].sum()),None),("재고자산",won(f["재고현황"]["참고 재고가액"].sum()),None),("보충 필요 SKU",num((f["재고현황"]["상태"]=="보충 필요").sum()),None),("음수재고 SKU",num((f["재고현황"]["상태"]=="음수재고 확인").sum()),None),("미입고수량",num(pd.to_numeric(po.get("미입고수량",0),errors="coerce").fillna(0).sum() if len(po) else 0),None)],5)
 c1,c2=st.columns([1.6,1])
 with c1:
     with st.container(border=True):
