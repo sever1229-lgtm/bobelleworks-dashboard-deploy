@@ -74,7 +74,7 @@ with st.container(border=True):
             ("다음 예정일", next_order_date),
         ]
     )
-    missing_price = int(planned["예상 단가"].isna().sum())
+    missing_price = int((pd.to_numeric(planned["예상 단가"], errors="coerce").fillna(0) <= 0).sum())
     if missing_price:
         footnote(
             f"예상 단가가 입력되지 않은 SKU {missing_price}행은 예정금액에 포함되지 않습니다."
@@ -85,20 +85,23 @@ with st.container(border=True):
 with st.container(border=True):
     section_title("거래처별 발주액")
     vendor = po.groupby("거래처")["예상 발주액"].sum().reset_index()
-    st.plotly_chart(
-        chart_style(
-            px.bar(
-                vendor,
-                x="거래처",
-                y="예상 발주액",
-                color_discrete_sequence=["#3b82f6"],
+    if vendor.empty:
+        st.info("선택 기간에 발주완료 실적이 없습니다.")
+    else:
+        st.plotly_chart(
+            chart_style(
+                px.bar(
+                    vendor,
+                    x="거래처",
+                    y="예상 발주액",
+                    color_discrete_sequence=["#3b82f6"],
+                ),
+                245,
+                False,
             ),
-            245,
-            False,
-        ),
-        use_container_width=True,
-        config={"displayModeBar": False},
-    )
+            use_container_width=True,
+            config={"displayModeBar": False},
+        )
 
 section_title("발주 상세")
 cols = [
