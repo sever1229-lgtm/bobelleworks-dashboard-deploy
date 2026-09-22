@@ -86,3 +86,26 @@ assert interpretation_metrics(empty)["매출"] == 0
 assert filter_interpretation(translation, lo, hi, types=["식품"]).empty
 
 print("OK: translation compatibility, review regressions, filters, and empty states passed")
+
+
+# Regression: each row is one interpretation job, while repeated project names count once.
+metric_frame = pd.DataFrame({
+    "업무일": pd.to_datetime(["2026-09-01", "2026-09-01", "2026-09-02"]),
+    "업무구분": ["교육", "교육", "의료"],
+    "거래처 / 에이전시": ["A", "A", "B"],
+    "프로젝트 / 행사명": ["Project X", "Project X", "Project Y"],
+    "통역 매출액": [100000, 100000, 150000],
+    "소득세 3%": [3000, 3000, 4500],
+    "지방소득세 0.3%": [300, 300, 450],
+    "원천징수 합계 (자동)": [3300, 3300, 4950],
+    "실수령 예정액 (자동)": [96700, 96700, 145050],
+    "지급명세서 여부": ["미확인"] * 3,
+    "입금상태": ["미정산"] * 3,
+    "메모": [""] * 3,
+    "장소": ["코엑스", "코엑스", "서울(기타)"],
+})
+metric_frame = interpretation_frame(metric_frame)
+metric_result = interpretation_metrics(metric_frame)
+assert metric_result["통역 건수"] == 3, metric_result
+assert metric_result["프로젝트 수"] == 2, metric_result
+print("OK: same project on multiple rows counts as one project; every row counts as one interpretation")
