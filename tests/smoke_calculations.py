@@ -1,5 +1,5 @@
 import pandas as pd
-from services.calculations import product_summary, channel_summary
+from services.calculations import product_summary, channel_summary, delayed_orders
 from services.validation import validate_aggregates
 
 # Fully synthetic values. Never place operational figures in source control.
@@ -24,3 +24,16 @@ assert (checks["상태"]=="일치").all(), checks[checks["상태"]!="일치"]
 assert product_summary(sales)["매출"].sum()==5000
 assert channel_summary(sales)["매출"].sum()==5000
 print(f"OK: {len(checks)} synthetic sheet/raw checks passed")
+
+# Regression: pandas datetime64 due dates must compare safely with Python date values.
+purchases = pd.DataFrame({
+    "입고예정일": pd.to_datetime(["2026-01-01", None]),
+    "미입고수량": [1, 2],
+})
+late = delayed_orders(purchases, pd.Timestamp("2026-01-02").date())
+assert len(late) == 1, late
+
+# Empty-period summaries must retain their schema for dashboard rendering.
+assert list(product_summary(pd.DataFrame()).columns) == ["SKU","상품명 (자동)","판매수량","매출","매출원가","판매부대비","공헌이익","공헌이익률"]
+assert list(channel_summary(pd.DataFrame()).columns) == ["판매채널","주문건수","판매수량","매출","공헌이익","공헌이익률"]
+print("OK: date-comparison regression and empty-period schemas passed")
