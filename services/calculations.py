@@ -63,6 +63,8 @@ def channel_summary(sales: pd.DataFrame) -> pd.DataFrame:
 def delayed_orders(purchases: pd.DataFrame, today: date) -> pd.DataFrame:
     if purchases.empty:
         return purchases.copy()
-    due=pd.to_datetime(purchases["입고예정일"],errors="coerce")
-    return purchases[(purchases["미입고수량"]>0)&(due.dt.date<today)].copy()
+    due = pd.to_datetime(purchases["입고예정일"], errors="coerce")
+    remaining = pd.to_numeric(purchases["미입고수량"], errors="coerce").fillna(0)
+    today_ts = pd.Timestamp(today).normalize()
+    return purchases[(remaining > 0) & due.notna() & (due.dt.normalize() < today_ts)].copy()
 
