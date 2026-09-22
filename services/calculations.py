@@ -30,7 +30,7 @@ def monthly_raw(sales: pd.DataFrame, expenses: pd.DataFrame, cash: pd.DataFrame)
         x=sales.copy(); x["월"]=x["처리일"].dt.to_period("M").dt.to_timestamp()
         x["판매 부대비"]=x[["수수료","택배비","포장비"]].sum(axis=1)
         parts.append(x.groupby("월")[["매출 합계","매출원가","판매 부대비","공헌이익"]].sum().rename(columns={"매출 합계":"매출"}))
-    result = parts[0] if parts else pd.DataFrame()
+    result = parts[0] if parts else pd.DataFrame(index=pd.DatetimeIndex([], name="월"))
     if not expenses.empty:
         x=expenses.copy(); x["월"]=x["발생일"].dt.to_period("M").dt.to_timestamp()
         result=result.join(x.groupby("월")["금액"].sum().rename("운영비"), how="outer")
@@ -44,8 +44,9 @@ def monthly_raw(sales: pd.DataFrame, expenses: pd.DataFrame, cash: pd.DataFrame)
 
 
 def product_summary(sales: pd.DataFrame) -> pd.DataFrame:
+    columns = ["SKU","상품명 (자동)","판매수량","매출","매출원가","판매부대비","공헌이익","공헌이익률"]
     if sales.empty:
-        return pd.DataFrame()
+        return pd.DataFrame(columns=columns)
     x=sales.copy(); x["판매부대비"]=x[["수수료","택배비","포장비"]].sum(axis=1)
     out=x.groupby(["SKU","상품명 (자동)"],dropna=False).agg(판매수량=("재고 차감수량","sum"),매출=("매출 합계","sum"),매출원가=("매출원가","sum"),판매부대비=("판매부대비","sum"),공헌이익=("공헌이익","sum")).reset_index()
     out["공헌이익률"]=out["공헌이익"].div(out["매출"].replace(0,pd.NA)).fillna(0)
@@ -53,8 +54,9 @@ def product_summary(sales: pd.DataFrame) -> pd.DataFrame:
 
 
 def channel_summary(sales: pd.DataFrame) -> pd.DataFrame:
+    columns = ["판매채널","주문건수","판매수량","매출","공헌이익","공헌이익률"]
     if sales.empty:
-        return pd.DataFrame()
+        return pd.DataFrame(columns=columns)
     return sales.groupby("판매채널",dropna=False).agg(주문건수=("주문번호","nunique"),판매수량=("재고 차감수량","sum"),매출=("매출 합계","sum"),공헌이익=("공헌이익","sum")).reset_index().assign(공헌이익률=lambda x:x["공헌이익"].div(x["매출"].replace(0,pd.NA)).fillna(0))
 
 
