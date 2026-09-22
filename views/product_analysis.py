@@ -19,14 +19,26 @@ if len(p): p=p.sort_values(mapping[order][0],ascending=mapping[order][1])
 c1,c2=st.columns(2)
 with c1:
     with st.container(border=True):
-        section_title("매출 TOP"); st.plotly_chart(chart_style(px.bar(p.nlargest(10,"매출"),x="SKU",y="매출",color_discrete_sequence=["#3b82f6"],labels={"SKU":"SKU","매출":"매출"}),260,False),use_container_width=True,config={"displayModeBar":False})
+        section_title("매출 TOP")
+        if len(p):
+            st.plotly_chart(chart_style(px.bar(p.nlargest(10,"매출"),x="SKU",y="매출",color_discrete_sequence=["#3b82f6"],labels={"SKU":"SKU","매출":"매출"}),260,False),use_container_width=True,config={"displayModeBar":False})
+        else:
+            st.info("선택 기간에 판매 데이터가 없습니다.")
 with c2:
     with st.container(border=True):
-        section_title("공헌이익 TOP"); st.plotly_chart(chart_style(px.bar(p.nlargest(10,"공헌이익"),x="SKU",y="공헌이익",color_discrete_sequence=["#20b486"],labels={"SKU":"SKU","공헌이익":"공헌이익"}),260,False),use_container_width=True,config={"displayModeBar":False})
+        section_title("공헌이익 TOP")
+        if len(p):
+            st.plotly_chart(chart_style(px.bar(p.nlargest(10,"공헌이익"),x="SKU",y="공헌이익",color_discrete_sequence=["#20b486"],labels={"SKU":"SKU","공헌이익":"공헌이익"}),260,False),use_container_width=True,config={"displayModeBar":False})
+        else:
+            st.info("선택 기간에 판매 데이터가 없습니다.")
 c3,c4=st.columns([1.35,1],gap="small")
 with c3:
     with st.container(border=True):
-        section_title("매출 vs 공헌이익률"); st.plotly_chart(chart_style(px.scatter(p,x="매출",y="공헌이익률",size="판매수량",color="상품명 (자동)",hover_name="SKU"),250),use_container_width=True,config={"displayModeBar":False})
+        section_title("매출 vs 공헌이익률")
+        if len(p):
+            st.plotly_chart(chart_style(px.scatter(p,x="매출",y="공헌이익률",size="판매수량",color="상품명 (자동)",hover_name="SKU"),250),use_container_width=True,config={"displayModeBar":False})
+        else:
+            st.info("선택 기간에 판매 데이터가 없습니다.")
 with c4:
     with st.container(border=True):
         section_title("저수익 상품"); show(p[p["매출"]>0].nsmallest(5,"공헌이익률")[["SKU","상품명 (자동)","매출","공헌이익","공헌이익률"]],currency=["매출","공헌이익"],percent=["공헌이익률"],height=250)
