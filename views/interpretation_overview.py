@@ -113,9 +113,9 @@ with c3:
             text=f"통역 {int(venues['건수'].sum()) if len(venues) else 0}건",
             x=.5, y=.5, showarrow=False, font=dict(size=13, color=COLORS["text"]),
         )
-        venue_fig = chart_style(fig, 275)
+        venue_fig = chart_style(fig, 320)
         venue_fig.update_layout(
-            margin=dict(l=4, r=4, t=18, b=4),
+            margin=dict(l=2, r=2, t=12, b=2),
             legend=dict(
                 orientation="h",
                 y=1.10,
