@@ -115,20 +115,22 @@ with c3:
         )
         venue_fig = chart_style(fig, 275)
         venue_fig.update_layout(
-            margin=dict(l=8, r=8, t=42, b=8),
+            margin=dict(l=4, r=4, t=18, b=4),
             legend=dict(
                 orientation="h",
-                y=1.11,
+                y=1.10,
                 x=.5,
                 xanchor="center",
                 yanchor="bottom",
                 title_text="",
-                font_size=8,
+                font_size=7,
                 traceorder="normal",
+                entrywidth=64,
+                entrywidthmode="pixels",
             ),
         )
-        venue_fig.update_traces(domain=dict(x=[0.02, 0.98], y=[0.00, 0.92]))
-        venue_fig.update_annotations(x=.5, y=.46)
+        venue_fig.update_traces(domain=dict(x=[0.00, 1.00], y=[0.00, 1.00]))
+        venue_fig.update_annotations(x=.5, y=.5)
         st.plotly_chart(venue_fig, use_container_width=True, config={"displayModeBar": False})
 
 with st.container(border=True):
