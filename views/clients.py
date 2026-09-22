@@ -22,7 +22,6 @@ selected = with_status_columns(filter_interpretation(translation, start, end))
 
 if len(selected):
     clients = selected.groupby("거래처 / 에이전시", dropna=False).agg(
-        통역건수=("프로젝트 / 행사명", "size"),
         프로젝트수=("프로젝트 / 행사명", lambda values: values.fillna("").astype(str).str.strip().str.replace(r"\\s+", " ", regex=True).replace("", pd.NA).dropna().nunique()),
         누적매출=("통역 매출액", "sum"),
         미정산금액=("실수령 예정액 (자동)", lambda values: values.loc[values.index.intersection(selected.index[selected["정산구분"] != "입금완료"])].sum()),
@@ -32,7 +31,7 @@ if len(selected):
     unpaid = selected[selected["정산구분"] != "입금완료"].groupby("거래처 / 에이전시", dropna=False)["실수령 예정액 (자동)"].sum()
     clients["미정산금액"] = clients["거래처 / 에이전시"].map(unpaid).fillna(0)
 else:
-    clients = pd.DataFrame(columns=["거래처 / 에이전시", "통역건수", "프로젝트수", "누적매출", "평균프로젝트금액", "미정산금액"])
+    clients = pd.DataFrame(columns=["거래처 / 에이전시", "프로젝트수", "누적매출", "평균프로젝트금액", "미정산금액"])
 
 metrics(
     [
