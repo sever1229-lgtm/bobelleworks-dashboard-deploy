@@ -59,16 +59,19 @@ def split_metric_card(left_item, right_item):
         label, value, help_text = item
         icon = ICONS.get(label, "•")
         helper = help_text or "선택 기간 기준"
-        return f"""
-        <div class="bw-split-kpi-item bw-split-accent-{accent}">
-          <div class="bw-kpi-top"><span class="bw-kpi-icon">{escape(icon)}</span><span class="bw-kpi-label">{escape(label)}</span></div>
-          <div class="bw-kpi-value">{escape(str(value))}</div>
-          <div class="bw-kpi-help">{escape(helper)}</div>
-        </div>
-        """
-    html = f'<div class="bw-kpi bw-kpi-split">{block(left_item, 0)}{block(right_item, 1)}</div>'
-    st.markdown(html, unsafe_allow_html=True)
+        return (
+            f'<div class="bw-split-kpi-item bw-split-accent-{accent}">'
+            f'<div class="bw-kpi-top">'
+            f'<span class="bw-kpi-icon">{escape(icon)}</span>'
+            f'<span class="bw-kpi-label">{escape(label)}</span>'
+            f'</div>'
+            f'<div class="bw-kpi-value">{escape(str(value))}</div>'
+            f'<div class="bw-kpi-help">{escape(helper)}</div>'
+            f'</div>'
+        )
 
+    html = '<div class="bw-kpi bw-kpi-split">' + block(left_item, 0) + block(right_item, 1) + '</div>'
+    st.markdown(html, unsafe_allow_html=True)
 
 def metric_card(label, value, help_text=None, accent=0):
     icon = ICONS.get(label, "•")
