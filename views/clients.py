@@ -22,25 +22,25 @@ selected = with_status_columns(filter_interpretation(translation, start, end))
 
 if len(selected):
     clients = selected.groupby("거래처 / 에이전시", dropna=False).agg(
-        프로젝트수=("프로젝트 / 행사명", "size"),
+        통역건수=("프로젝트 / 행사명", "size"),
+        프로젝트수=("프로젝트 / 행사명", lambda values: values.fillna("").astype(str).str.strip().str.replace(r"\\s+", " ", regex=True).replace("", pd.NA).dropna().nunique()),
         누적매출=("통역 매출액", "sum"),
-        평균프로젝트금액=("통역 매출액", "mean"),
         미정산금액=("실수령 예정액 (자동)", lambda values: values.loc[values.index.intersection(selected.index[selected["정산구분"] != "입금완료"])].sum()),
     ).reset_index()
+    clients["평균프로젝트금액"] = clients["누적매출"].div(clients["프로젝트수"].replace(0, pd.NA)).fillna(0)
     # Recalculate the conditional amount directly to preserve grouping semantics with repeated client names.
     unpaid = selected[selected["정산구분"] != "입금완료"].groupby("거래처 / 에이전시", dropna=False)["실수령 예정액 (자동)"].sum()
     clients["미정산금액"] = clients["거래처 / 에이전시"].map(unpaid).fillna(0)
 else:
-    clients = pd.DataFrame(columns=["거래처 / 에이전시", "프로젝트수", "누적매출", "평균프로젝트금액", "미정산금액"])
+    clients = pd.DataFrame(columns=["거래처 / 에이전시", "통역건수", "프로젝트수", "누적매출", "평균프로젝트금액", "미정산금액"])
 
 metrics(
     [
         ("거래처 수", num(clients["거래처 / 에이전시"].replace("", pd.NA).dropna().nunique()), "조회 기간 기준"),
-        ("프로젝트 수", num(clients["프로젝트수"].sum() if len(clients) else 0), "전체 거래처 합계"),
         ("누적 매출", won(clients["누적매출"].sum() if len(clients) else 0), "원천징수 전 매출"),
         ("미정산 금액", won(clients["미정산금액"].sum() if len(clients) else 0), "입금완료 외 실수령 예정액"),
     ],
-    4,
+    3,
 )
 
 with st.container(border=True):
