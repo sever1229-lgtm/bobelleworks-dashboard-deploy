@@ -84,11 +84,22 @@ def _add_monthly_compatibility_columns(df: pd.DataFrame) -> pd.DataFrame:
     if "판매 부대비" not in out and "스마일피치노 판매 부대비" in out:
         out["판매 부대비"] = out["스마일피치노 판매 부대비"]
 
-    # Preserve current dashboard behavior where only total profit columns exist.
-    if "공헌이익" not in out and "전체 공헌이익" in out:
-        out["공헌이익"] = out["전체 공헌이익"]
-    if "관리손익" not in out and "전체 관리손익" in out:
-        out["관리손익"] = out["전체 관리손익"]
+    # Generic profit columns are used by Smile Piccino pages only.
+    # Do not map them to overall-business profit, because overall profit includes
+    # interpretation revenue and would inflate the Smile Piccino dashboard.
+    def numeric_series(column: str) -> pd.Series:
+        if column in out:
+            return pd.to_numeric(out[column], errors="coerce").fillna(0)
+        return pd.Series(0.0, index=out.index, dtype=float)
+
+    if "공헌이익" not in out:
+        revenue = numeric_series("스마일피치노 매출")
+        cogs = numeric_series("매출원가")
+        selling = numeric_series("판매 부대비")
+        out["공헌이익"] = revenue - cogs - selling
+    if "관리손익" not in out:
+        operating = numeric_series("운영비")
+        out["관리손익"] = numeric_series("공헌이익") - operating
     if "전체 공헌이익" not in out:
         out["전체 공헌이익"] = out.get("공헌이익", 0)
     if "전체 관리손익" not in out:
