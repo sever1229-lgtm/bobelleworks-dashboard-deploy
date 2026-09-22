@@ -188,9 +188,23 @@ def interpretation_metrics(df: pd.DataFrame) -> dict[str, float]:
     withholding = float(checked["원천징수 합계 (자동)"].sum()) if "원천징수 합계 (자동)" in checked else 0.0
     net = float(checked["실수령 예정액 (자동)"].sum()) if "실수령 예정액 (자동)" in checked else 0.0
     unsettled = float(checked.loc[checked["정산구분"] != "입금완료", "실수령 예정액 (자동)"].sum()) if len(checked) else 0.0
+
+    interpretation_count = int(len(checked))
+    project_names = (
+        checked["프로젝트 / 행사명"].fillna("").astype(str)
+        .str.strip()
+        .str.replace(r"\\s+", " ", regex=True)
+    ) if "프로젝트 / 행사명" in checked else pd.Series(dtype=str)
+    project_count = int(project_names[project_names.ne("")].nunique())
+
     return {
-        "매출": revenue, "프로젝트 수": float(len(checked)), "평균 프로젝트 금액": revenue / len(checked) if len(checked) else 0.0,
-        "원천징수 합계": withholding, "실수령 예정액": net, "미정산 금액": unsettled,
+        "매출": revenue,
+        "통역 건수": float(interpretation_count),
+        "프로젝트 수": float(project_count),
+        "평균 프로젝트 금액": revenue / project_count if project_count else 0.0,
+        "원천징수 합계": withholding,
+        "실수령 예정액": net,
+        "미정산 금액": unsettled,
     }
 
 
