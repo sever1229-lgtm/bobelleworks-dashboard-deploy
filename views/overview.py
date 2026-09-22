@@ -30,7 +30,12 @@ m = monthly[
 ].copy()
 trend_m=monthly[monthly["월 시작"]<=end.to_period("M").start_time].sort_values("월 시작").tail(6).copy()
 inv = f["재고현황"]
-po = f["발주"]
+po = f["발주"].copy()
+if "발주상태" in po:
+    po_status = po["발주상태"].fillna("").astype(str).str.strip()
+    actual_po = po[po_status.eq("발주완료")].copy()
+else:
+    actual_po = po.copy()
 sales = filter_dates(f["판매 및 반품"], "처리일", start, end)
 tot = (
     m[["매출", "매출원가", "판매 부대비", "공헌이익", "운영비", "관리손익", "순현금흐름"]].sum()
@@ -50,9 +55,12 @@ errors = sum(
     ]
 )
 today = pd.Timestamp.now(tz=d.settings.timezone).date()
-record_start = f["대시보드"].iloc[0]["기록 시작일"]
+record_start = f["대시보드"].iloc[0].get("기록 시작일", pd.NaT)
+if pd.isna(record_start):
+    valid_months = monthly["월 시작"].dropna()
+    record_start = valid_months.min() if len(valid_months) else start
 history = monthly[
-    (monthly["월 시작"] >= record_start.to_period("M").start_time)
+    (monthly["월 시작"] >= pd.Timestamp(record_start).to_period("M").start_time)
     & (monthly["월 시작"] <= end.to_period("M").start_time)
 ]
 insights = build(f, history, today)
@@ -85,8 +93,10 @@ with middle:
         normal = int((inv["상태"].replace("", "정상").fillna("정상") == "정상").sum())
         replenish = int((inv["상태"] == "보충 필요").sum())
         negative = int((inv["상태"] == "음수재고 확인").sum())
-        late = int(((pd.to_numeric(po["미입고수량"], errors="coerce").fillna(0) > 0) & (po["입고예정일"].dt.date < pd.Timestamp.now(tz=d.settings.timezone).date())).sum())
-        st.markdown(f'''<div class="bw-stock-cards"><div class="bw-stock-card blue"><span>▦ 현재고</span><b>{num(inv["현재고"].sum())}</b><span>전체 SKU 기준</span></div><div class="bw-stock-card warn"><span>⚠ 보충 필요</span><b>{num(replenish)}</b><span>안전재고 미만</span></div><div class="bw-stock-card"><span>▣ 미입고</span><b>{num(po["미입고수량"].sum())}</b><span>발주 확정 기준</span></div></div>''',unsafe_allow_html=True)
+        due = pd.to_datetime(actual_po.get("입고예정일", pd.Series(index=actual_po.index, dtype="datetime64[ns]")), errors="coerce")
+        remaining = pd.to_numeric(actual_po.get("미입고수량", pd.Series(index=actual_po.index, dtype=float)), errors="coerce").fillna(0)
+        late = int(((remaining > 0) & due.notna() & (due.dt.date < pd.Timestamp.now(tz=d.settings.timezone).date())).sum())
+        st.markdown(f'''<div class="bw-stock-cards"><div class="bw-stock-card blue"><span>▦ 현재고</span><b>{num(inv["현재고"].sum())}</b><span>전체 SKU 기준</span></div><div class="bw-stock-card warn"><span>⚠ 보충 필요</span><b>{num(replenish)}</b><span>안전재고 미만</span></div><div class="bw-stock-card"><span>▣ 미입고</span><b>{num(remaining.sum())}</b><span>발주완료 기준</span></div></div>''',unsafe_allow_html=True)
         summary=pd.DataFrame({"구분":["정상 재고","품절 SKU","보충 필요 SKU","납기 지연"],"수량":[normal,negative,replenish,late]})
         show(summary,height=200)
 
