@@ -68,7 +68,7 @@ summary = interpretation_metrics(selected)
 metrics(
     [
         ("통역 매출", won(summary["매출"]), "원천징수 전 매출"),
-        ("프로젝트 수", num(summary["프로젝트 수"]), "입력된 통역 매출 행 수"),
+        ("통역 건수", num(summary["통역 건수"]), "입력된 통역 매출 행 수"),
         ("평균 프로젝트 금액", won(summary["평균 프로젝트 금액"]), "통역 매출÷프로젝트 수"),
         ("원천징수 합계", won(summary["원천징수 합계"]), "비용으로 차감하지 않음"),
         ("실수령 예정액", won(summary["실수령 예정액"]), "매출−원천징수"),
