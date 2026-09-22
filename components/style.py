@@ -60,6 +60,11 @@ def apply_style():
         .bw-kpi-label{font-size:.7rem;color:#596579;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .bw-kpi-value{font-size:1.33rem;line-height:1.2;color:#111827;font-weight:850;letter-spacing:-.035em;white-space:nowrap}
         .bw-kpi-help{font-size:.64rem;color:#98a2b3;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .bw-kpi-split{display:grid;grid-template-columns:1fr 1fr;padding:13px 0 8px}
+        .bw-split-kpi-item{padding:0 15px;min-width:0}
+        .bw-split-kpi-item+ .bw-split-kpi-item{border-left:1px solid var(--bw-line)}
+        .bw-split-accent-0 .bw-kpi-icon{color:#c77713;background:#fff1db}
+        .bw-split-accent-1 .bw-kpi-icon{color:#2563c7;background:#e3edff}
         .bw-spark{height:30px;margin:5px -3px -2px}.bw-spark svg{width:100%;height:100%;overflow:visible}.bw-spark path{fill:none;stroke-width:2}.bw-spark polygon{opacity:.1}
         .bw-accent-0 .bw-kpi-icon{color:#c77713;background:#fff1db}.bw-accent-0{border-bottom:2px solid #f4b55d}
         .bw-accent-1 .bw-kpi-icon{color:#159b72;background:#dcf8ef}.bw-accent-1{border-bottom:2px solid #4bcba4}
