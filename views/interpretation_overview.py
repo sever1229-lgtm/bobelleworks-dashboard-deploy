@@ -114,7 +114,7 @@ with c3:
             x=.5, y=.5, showarrow=False, font=dict(size=13, color=COLORS["text"]),
         )
         venue_fig = chart_style(fig, 275)
-        venue_fig.update_traces(domain=dict(x=[0.03, 0.97], y=[0.02, 0.96]))
+        venue_fig.update_traces(domain=dict(x=[0.02, 0.98], y=[0.01, 0.97]))
         venue_fig.update_annotations(x=.5, y=.49)
         st.plotly_chart(venue_fig, use_container_width=True, config={"displayModeBar": False})
 
