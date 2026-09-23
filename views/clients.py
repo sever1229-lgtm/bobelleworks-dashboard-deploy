@@ -11,7 +11,7 @@ from services.interpretation import interpretation_frame, period_bounds, filter_
 
 d = context()
 f = d.frames
-title("거래처 관리", "거래처·에이전시별 프로젝트 실적과 미정산 금액을 관리하세요.")
+title("거래처 관리", "거래처·에이전시별 통역 실적과 미정산 금액을 관리하세요.")
 translation = interpretation_frame(f.get("통역 매출"))
 lo, hi = period_bounds(translation, d.settings.timezone)
 reference_date = pd.Timestamp.now(tz=d.settings.timezone).tz_localize(None).normalize()
@@ -22,7 +22,7 @@ selected = with_status_columns(filter_interpretation(translation, start, end))
 
 if len(selected):
     clients = selected.groupby("거래처 / 에이전시", dropna=False).agg(
-        프로젝트수=("프로젝트 / 행사명", lambda values: values.fillna("").astype(str).str.strip().str.replace(r"\\s+", " ", regex=True).replace("", pd.NA).dropna().nunique()),
+        통역건수=("프로젝트 / 행사명", "size"),
         누적매출=("통역 매출액", "sum"),
         미정산금액=("실수령 예정액 (자동)", lambda values: values.loc[values.index.intersection(selected.index[selected["정산구분"] != "입금완료"])].sum()),
     ).reset_index()
