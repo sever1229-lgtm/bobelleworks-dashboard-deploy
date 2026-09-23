@@ -37,10 +37,10 @@ work = selected.copy()
 if len(work):
     work["월"] = work["업무일"].dt.to_period("M").dt.to_timestamp()
     monthly = work.groupby("월", as_index=False)["통역 매출액"].sum()
-    by_type = work.groupby("업무구분", as_index=False).agg(프로젝트수=("프로젝트 / 행사명", "size"), 매출=("통역 매출액", "sum"), 실수령예정액=("실수령 예정액 (자동)", "sum"))
+    by_type = work.groupby("업무구분", as_index=False).agg(통역건수=("프로젝트 / 행사명", "size"), 매출=("통역 매출액", "sum"), 실수령예정액=("실수령 예정액 (자동)", "sum"))
 else:
     monthly = pd.DataFrame(columns=["월", "통역 매출액"])
-    by_type = pd.DataFrame(columns=["업무구분", "프로젝트수", "매출", "실수령예정액"])
+    by_type = pd.DataFrame(columns=["업무구분", "통역건수", "매출", "실수령예정액"])
 
 c1, c2 = st.columns(2, gap="small")
 with c1:
