@@ -26,12 +26,12 @@ if len(selected):
         누적매출=("통역 매출액", "sum"),
         미정산금액=("실수령 예정액 (자동)", lambda values: values.loc[values.index.intersection(selected.index[selected["정산구분"] != "입금완료"])].sum()),
     ).reset_index()
-    clients["평균프로젝트금액"] = clients["누적매출"].div(clients["프로젝트수"].replace(0, pd.NA)).fillna(0)
+    clients["평균 통역금액"] = clients["누적매출"].div(clients["통역건수"].replace(0, pd.NA)).fillna(0)
     # Recalculate the conditional amount directly to preserve grouping semantics with repeated client names.
     unpaid = selected[selected["정산구분"] != "입금완료"].groupby("거래처 / 에이전시", dropna=False)["실수령 예정액 (자동)"].sum()
     clients["미정산금액"] = clients["거래처 / 에이전시"].map(unpaid).fillna(0)
 else:
-    clients = pd.DataFrame(columns=["거래처 / 에이전시", "프로젝트수", "누적매출", "평균프로젝트금액", "미정산금액"])
+    clients = pd.DataFrame(columns=["거래처 / 에이전시", "통역건수", "누적매출", "평균 통역금액", "미정산금액"])
 
 metrics(
     [
@@ -62,4 +62,4 @@ with st.container(border=True):
     )
 
 section_title("거래처별 정산 요약")
-show(clients.sort_values("누적매출", ascending=False), currency=["누적매출", "평균프로젝트금액", "미정산금액"])
+show(clients.sort_values("누적매출", ascending=False), currency=["누적매출", "평균 통역금액", "미정산금액"])
