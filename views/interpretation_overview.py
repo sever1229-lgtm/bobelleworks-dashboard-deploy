@@ -113,24 +113,9 @@ with c3:
             text=f"통역 {int(venues['건수'].sum()) if len(venues) else 0}건",
             x=.5, y=.5, showarrow=False, font=dict(size=13, color=COLORS["text"]),
         )
-        venue_fig = chart_style(fig, 320)
-        venue_fig.update_layout(
-            margin=dict(l=2, r=2, t=12, b=2),
-            legend=dict(
-                orientation="h",
-                y=1.10,
-                x=.5,
-                xanchor="center",
-                yanchor="bottom",
-                title_text="",
-                font_size=7,
-                traceorder="normal",
-                entrywidth=64,
-                entrywidthmode="pixels",
-            ),
-        )
-        venue_fig.update_traces(domain=dict(x=[0.00, 1.00], y=[0.00, 1.00]))
-        venue_fig.update_annotations(x=.5, y=.5)
+        venue_fig = chart_style(fig, 275)
+        venue_fig.update_traces(domain=dict(x=[0.03, 0.97], y=[0.02, 0.96]))
+        venue_fig.update_annotations(x=.5, y=.49)
         st.plotly_chart(venue_fig, use_container_width=True, config={"displayModeBar": False})
 
 with st.container(border=True):
