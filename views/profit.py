@@ -19,7 +19,7 @@ with c1:
     with st.container(border=True):
         section_title("손익 구조")
         vals=[rev,-t.get("매출원가",0),-t.get("판매 부대비",0),t.get("공헌이익",0),-t.get("운영비",0),t.get("관리손익",0)]
-        fig=go.Figure(go.Waterfall(x=["매출","매출원가","판매부대비","공헌이익","운영비","관리손익"],measure=["absolute","relative","relative","total","relative","total"],y=vals,connector={"line":{"color":"#ccd2df"}})); st.plotly_chart(chart_style(fig,260),use_container_width=True,config={"displayModeBar":False})
+        fig=go.Figure(go.Waterfall(x=["매출","매출원가","판매부대비","공헌이익","운영비","관리손익"],measure=["absolute","relative","relative","total","relative","total"],y=vals,connector={"line":{"color":"#ccd2df"}})); st.plotly_chart(chart_style(fig,260,False),use_container_width=True,config={"displayModeBar":False})
 with c2:
     with st.container(border=True):
         section_title("판매부대비 구성")
