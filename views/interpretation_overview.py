@@ -3,6 +3,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
+from components.filters import calendar_period
 from components.kpi_cards import metrics, num, won
 from components.style import COLORS, chart_style, section_title
 from runtime import context, title
@@ -45,13 +46,26 @@ with head_right:
         key="interpretation_overview_month",
     )
 
-    # Initial date range uses a rolling one-year window ending today.
-    range_start = rolling_start
-    range_end = reference_date
+    selector = (int(selected_year), selected_month)
+    previous_selector = st.session_state.get("interpretation_overview_selector")
+    if previous_selector is None:
+        if "interpretation_overview_period" not in st.session_state:
+            st.session_state["interpretation_overview_period"] = (
+                rolling_start.date(), reference_date.date()
+            )
+        st.session_state["interpretation_overview_selector"] = selector
+    elif previous_selector != selector:
+        range_start, range_end = calendar_period(
+            selected_year, selected_month, reference_date
+        )
+        st.session_state["interpretation_overview_period"] = (
+            range_start.date(), range_end.date()
+        )
+        st.session_state["interpretation_overview_selector"] = selector
 
     picked = filter_cols[2].date_input(
         "조회 기간",
-        (range_start.date(), range_end.date()),
+        (rolling_start.date(), reference_date.date()),
         key="interpretation_overview_period",
     )
 
