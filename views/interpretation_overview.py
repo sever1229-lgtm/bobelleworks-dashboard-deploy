@@ -27,8 +27,10 @@ with head_left:
     )
 
 with head_right:
+    rolling_start = reference_date - pd.DateOffset(years=1)
+    min_year = min(lo.year, rolling_start.year)
     max_year = max(hi.year, reference_date.year)
-    years = list(range(lo.year, max_year + 1)) or [reference_date.year]
+    years = list(range(min_year, max_year + 1)) or [reference_date.year]
     filter_cols = st.columns([.8, .8, 2.15], gap="small")
     selected_year = filter_cols[0].selectbox(
         "연도",
@@ -43,17 +45,9 @@ with head_right:
         key="interpretation_overview_month",
     )
 
-    default_start = pd.Timestamp(selected_year, 1 if selected_month == "전체" else selected_month, 1)
-    default_end = default_start + (
-        pd.offsets.YearEnd(0) if selected_month == "전체" else pd.offsets.MonthEnd(0)
-    )
-    range_start = default_start
-    if selected_year == reference_date.year and (selected_month == "전체" or selected_month == reference_date.month):
-        range_end = min(default_end, reference_date)
-    else:
-        range_end = default_end
-    if range_start > range_end:
-        range_start, range_end = default_start, default_end
+    # Initial date range uses a rolling one-year window ending today.
+    range_start = rolling_start
+    range_end = reference_date
 
     picked = filter_cols[2].date_input(
         "조회 기간",
