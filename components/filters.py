@@ -73,7 +73,6 @@ def period_filter(frames,show_search=True):
 
         picked=c3.date_input(
             "조회 기간",
-            (rolling_start.date(),today.date()),
             key=range_key,
         )
         query=cols[3].text_input("통합 검색",placeholder="주문번호, 상품, SKU…") if show_search else st.session_state.get("global_search","")
