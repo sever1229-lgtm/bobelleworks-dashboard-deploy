@@ -65,7 +65,6 @@ with head_right:
 
     picked = filter_cols[2].date_input(
         "조회 기간",
-        (rolling_start.date(), reference_date.date()),
         key="interpretation_overview_period",
     )
 
