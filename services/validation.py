@@ -29,7 +29,12 @@ def validate_aggregates(frames: dict[str, pd.DataFrame], tolerance: float = 1.0)
 
     raw = monthly_raw(frames["판매 및 반품"], frames["운영비"], frames["입출금"])
     metrics = ["매출", "매출원가", "판매 부대비", "공헌이익", "운영비", "관리손익", "실제 입금", "실제 출금", "순현금흐름"]
-    joined = sheet[["월"] + metrics].merge(raw, on="월", how="left", suffixes=("_시트", "_웹")).fillna(0)
+    # monthly_raw is expected to return all metrics, but keep validation defensive
+    # so an empty raw source never crashes the dashboard.
+    for col in metrics:
+        if col not in raw:
+            raw[col] = 0.0
+    joined = sheet[["월"] + metrics].merge(raw[["월"] + metrics], on="월", how="left", suffixes=("_시트", "_웹")).fillna(0)
 
     rows = []
     for _, r in joined.iterrows():
