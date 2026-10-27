@@ -38,8 +38,12 @@ def monthly_raw(sales: pd.DataFrame, expenses: pd.DataFrame, cash: pd.DataFrame)
         x=cash.copy(); x["월"]=x["거래일"].dt.to_period("M").dt.to_timestamp()
         result=result.join(x.groupby("월")[["입금","출금"]].sum().rename(columns={"입금":"실제 입금","출금":"실제 출금"}), how="outer")
     result=result.fillna(0).reset_index()
-    result["관리손익"]=result.get("공헌이익",0)-result.get("운영비",0)
-    result["순현금흐름"]=result.get("실제 입금",0)-result.get("실제 출금",0)
+    # Keep a stable metric schema even when one raw source (e.g. sales) has no rows.
+    for col in ["매출","매출원가","판매 부대비","공헌이익","운영비","실제 입금","실제 출금"]:
+        if col not in result:
+            result[col]=0.0
+    result["관리손익"]=result["공헌이익"]-result["운영비"]
+    result["순현금흐름"]=result["실제 입금"]-result["실제 출금"]
     return result
 
 
