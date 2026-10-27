@@ -50,7 +50,16 @@ def monthly_raw(sales: pd.DataFrame, expenses: pd.DataFrame, cash: pd.DataFrame)
 def product_summary(sales: pd.DataFrame) -> pd.DataFrame:
     columns = ["SKU","상품명 (자동)","판매수량","매출","매출원가","판매부대비","공헌이익","공헌이익률"]
     if sales.empty:
-        return pd.DataFrame(columns=columns)
+        return pd.DataFrame({
+            "SKU": pd.Series(dtype="object"),
+            "상품명 (자동)": pd.Series(dtype="object"),
+            "판매수량": pd.Series(dtype="float64"),
+            "매출": pd.Series(dtype="float64"),
+            "매출원가": pd.Series(dtype="float64"),
+            "판매부대비": pd.Series(dtype="float64"),
+            "공헌이익": pd.Series(dtype="float64"),
+            "공헌이익률": pd.Series(dtype="float64"),
+        })
     x=sales.copy(); x["판매부대비"]=x[["수수료","택배비","포장비"]].sum(axis=1)
     out=x.groupby(["SKU","상품명 (자동)"],dropna=False).agg(판매수량=("재고 차감수량","sum"),매출=("매출 합계","sum"),매출원가=("매출원가","sum"),판매부대비=("판매부대비","sum"),공헌이익=("공헌이익","sum")).reset_index()
     out["공헌이익률"]=out["공헌이익"].div(out["매출"].replace(0,pd.NA)).fillna(0)
