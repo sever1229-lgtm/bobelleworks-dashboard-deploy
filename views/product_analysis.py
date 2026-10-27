@@ -41,5 +41,10 @@ with c3:
             st.info("선택 기간에 판매 데이터가 없습니다.")
 with c4:
     with st.container(border=True):
-        section_title("저수익 상품"); show(p[p["매출"]>0].nsmallest(5,"공헌이익률")[["SKU","상품명 (자동)","매출","공헌이익","공헌이익률"]],currency=["매출","공헌이익"],percent=["공헌이익률"],height=250)
+        section_title("저수익 상품")
+        if len(p):
+            low = p[p["매출"] > 0].nsmallest(5, "공헌이익률")
+            show(low[["SKU","상품명 (자동)","매출","공헌이익","공헌이익률"]], currency=["매출","공헌이익"], percent=["공헌이익률"], height=250)
+        else:
+            st.info("선택 기간에 판매 데이터가 없습니다.")
 section_title("상품별 수익성"); show(p,currency=["매출","매출원가","판매부대비","공헌이익"],percent=["공헌이익률"])
