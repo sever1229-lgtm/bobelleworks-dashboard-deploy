@@ -15,8 +15,9 @@ title("통역 매출 분석", "업무구분과 월별 기준으로 통역 매출
 translation = interpretation_frame(f.get("통역 매출"))
 lo, hi = period_bounds(translation, d.settings.timezone)
 reference_date = pd.Timestamp.now(tz=d.settings.timezone).tz_localize(None).normalize()
-default_start = reference_date - pd.DateOffset(years=1)
-picked = st.date_input("조회 기간", (default_start.date(), reference_date.date()), key="interpretation_sales_period")
+default_start = (reference_date - pd.DateOffset(years=1)).to_period("M").start_time
+default_end = reference_date.to_period("M").end_time.normalize()
+picked = st.date_input("조회 기간", (default_start.date(), default_end.date()), key="interpretation_sales_period")
 start, end = selected_period(picked, lo, hi)
 types = st.multiselect("업무구분", sorted(value for value in translation["업무구분"].unique() if value))
 selected = filter_interpretation(translation, start, end, types=types)
