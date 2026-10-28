@@ -48,32 +48,26 @@ with head_right:
     )
 
     selector = (int(selected_year), selected_month)
-    default_version = "rolling-month-bounds-v4"
-    if st.session_state.get("interpretation_overview_default_version_v4") != default_version:
-        st.session_state["interpretation_overview_period_v4"] = (
-            initial_start.date(), initial_end.date()
-        )
-        st.session_state["interpretation_overview_selector_v4"] = selector
-        st.session_state["interpretation_overview_default_version_v4"] = default_version
+    selector_key = "interpretation_overview_selector_v5"
+    active_range_key = f"interpretation_overview_period_v5_{int(selected_year)}_{selected_month}"
+    previous_selector = st.session_state.get(selector_key)
 
-    previous_selector = st.session_state.get("interpretation_overview_selector_v4")
     if previous_selector is None:
-        st.session_state["interpretation_overview_period_v4"] = (
-            initial_start.date(), initial_end.date()
-        )
-        st.session_state["interpretation_overview_selector_v4"] = selector
+        default_start, default_end = initial_start, initial_end
+        st.session_state[selector_key] = selector
     elif previous_selector != selector:
-        range_start, range_end = calendar_period(
+        default_start, default_end = calendar_period(
             selected_year, selected_month, reference_date
         )
-        st.session_state["interpretation_overview_period_v4"] = (
-            range_start.date(), range_end.date()
-        )
-        st.session_state["interpretation_overview_selector_v4"] = selector
+        st.session_state.pop(active_range_key, None)
+        st.session_state[selector_key] = selector
+    else:
+        default_start, default_end = initial_start, initial_end
 
     picked = filter_cols[2].date_input(
         "조회 기간",
-        key="interpretation_overview_period_v4",
+        value=(default_start.date(), default_end.date()),
+        key=active_range_key,
     )
 
 start, end = selected_period(picked, lo, hi)
