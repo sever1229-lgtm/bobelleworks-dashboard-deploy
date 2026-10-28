@@ -63,19 +63,25 @@ def period_filter(frames,show_search=True):
 
         selector=(int(year),month)
         previous=st.session_state.get(selector_key)
-        if previous is None or range_key not in st.session_state:
-            # First page load: first day of the same month one year ago through the current month end.
-            st.session_state[range_key]=(initial_start.date(),initial_end.date())
+        active_range_key=f"{prefix}_range_v5_{int(year)}_{month}"
+
+        if previous is None:
+            # First page load: same month one year ago (day 1) through current month end.
+            default_start, default_end = initial_start, initial_end
             st.session_state[selector_key]=selector
         elif previous != selector:
-            # User changed year/month: synchronize the explicit date range.
-            a,b=calendar_period(year,month,today)
-            st.session_state[range_key]=(a.date(),b.date())
+            # Year/month changed: reset the date widget to the selected calendar period.
+            default_start, default_end = calendar_period(year,month,today)
+            st.session_state.pop(active_range_key, None)
             st.session_state[selector_key]=selector
+        else:
+            # Existing selector: the widget keeps any manually chosen range.
+            default_start, default_end = initial_start, initial_end
 
         picked=c3.date_input(
             "조회 기간",
-            key=range_key,
+            value=(default_start.date(),default_end.date()),
+            key=active_range_key,
         )
         query=cols[3].text_input("통합 검색",placeholder="주문번호, 상품, SKU…") if show_search else st.session_state.get("global_search","")
 
