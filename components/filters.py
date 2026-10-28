@@ -29,8 +29,9 @@ def calendar_period(year, month, today):
 def period_filter(frames,show_search=True):
     lo,hi=dashboard_date_bounds(frames)
     today=pd.Timestamp.now(tz="Asia/Seoul").tz_localize(None).normalize()
-    rolling_start=today-pd.DateOffset(years=1)
-    min_year=min(lo.year,rolling_start.year)
+    initial_start=(today-pd.DateOffset(years=1)).to_period("M").start_time
+    initial_end=today.to_period("M").end_time.normalize()
+    min_year=min(lo.year,initial_start.year)
     max_year=max(hi.year,today.year)
     years=list(range(min_year,max_year+1)) or [today.year]
 
@@ -42,7 +43,7 @@ def period_filter(frames,show_search=True):
     range_key=f"{prefix}_range"
     selector_key=f"{prefix}_selector"
     version_key=f"{prefix}_default_version"
-    default_version="rolling-year-v2"
+    default_version="rolling-month-bounds-v3"
 
     with st.container(border=False):
         cols=st.columns([.8,.8,2.15,1.75] if show_search else [.8,.8,2.15],gap="small")
@@ -62,14 +63,14 @@ def period_filter(frames,show_search=True):
 
         selector=(int(year),month)
         if st.session_state.get(version_key) != default_version:
-            st.session_state[range_key]=(rolling_start.date(),today.date())
+            st.session_state[range_key]=(initial_start.date(),initial_end.date())
             st.session_state[selector_key]=selector
             st.session_state[version_key]=default_version
 
         previous=st.session_state.get(selector_key)
         if previous is None:
-            # First page load: trailing one year through today.
-            st.session_state[range_key]=(rolling_start.date(),today.date())
+            # First page load: first day of the same month one year ago through the current month end.
+            st.session_state[range_key]=(initial_start.date(),initial_end.date())
             st.session_state[selector_key]=selector
         elif previous != selector:
             # User changed year/month: synchronize the explicit date range.
@@ -86,7 +87,7 @@ def period_filter(frames,show_search=True):
     if isinstance(picked,(tuple,list)):
         if len(picked)==2: start,end=picked
         elif len(picked)==1: start=end=picked[0]
-        else: start,end=rolling_start.date(),today.date()
+        else: start,end=initial_start.date(),initial_end.date()
     else:
         start=end=picked
     return pd.Timestamp(start),pd.Timestamp(end),query
