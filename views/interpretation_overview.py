@@ -28,8 +28,9 @@ with head_left:
     )
 
 with head_right:
-    rolling_start = reference_date - pd.DateOffset(years=1)
-    min_year = min(lo.year, rolling_start.year)
+    initial_start = (reference_date - pd.DateOffset(years=1)).to_period("M").start_time
+    initial_end = reference_date.to_period("M").end_time.normalize()
+    min_year = min(lo.year, initial_start.year)
     max_year = max(hi.year, reference_date.year)
     years = list(range(min_year, max_year + 1)) or [reference_date.year]
     filter_cols = st.columns([.8, .8, 2.15], gap="small")
@@ -47,12 +48,19 @@ with head_right:
     )
 
     selector = (int(selected_year), selected_month)
+    default_version = "rolling-month-bounds-v3"
+    if st.session_state.get("interpretation_overview_default_version") != default_version:
+        st.session_state["interpretation_overview_period"] = (
+            initial_start.date(), initial_end.date()
+        )
+        st.session_state["interpretation_overview_selector"] = selector
+        st.session_state["interpretation_overview_default_version"] = default_version
+
     previous_selector = st.session_state.get("interpretation_overview_selector")
     if previous_selector is None:
-        if "interpretation_overview_period" not in st.session_state:
-            st.session_state["interpretation_overview_period"] = (
-                rolling_start.date(), reference_date.date()
-            )
+        st.session_state["interpretation_overview_period"] = (
+            initial_start.date(), initial_end.date()
+        )
         st.session_state["interpretation_overview_selector"] = selector
     elif previous_selector != selector:
         range_start, range_end = calendar_period(
