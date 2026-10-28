@@ -40,10 +40,10 @@ def period_filter(frames,show_search=True):
     prefix=f"period_{caller}"
     year_key=f"{prefix}_year"
     month_key=f"{prefix}_month"
-    range_key=f"{prefix}_range"
-    selector_key=f"{prefix}_selector"
-    version_key=f"{prefix}_default_version"
-    default_version="rolling-month-bounds-v3"
+    # v4 intentionally uses a fresh widget key so stale single-date state from
+    # earlier versions cannot override the intended date-range default.
+    range_key=f"{prefix}_range_v4"
+    selector_key=f"{prefix}_selector_v4"
 
     with st.container(border=False):
         cols=st.columns([.8,.8,2.15,1.75] if show_search else [.8,.8,2.15],gap="small")
@@ -62,13 +62,8 @@ def period_filter(frames,show_search=True):
         )
 
         selector=(int(year),month)
-        if st.session_state.get(version_key) != default_version:
-            st.session_state[range_key]=(initial_start.date(),initial_end.date())
-            st.session_state[selector_key]=selector
-            st.session_state[version_key]=default_version
-
         previous=st.session_state.get(selector_key)
-        if previous is None:
+        if previous is None or range_key not in st.session_state:
             # First page load: first day of the same month one year ago through the current month end.
             st.session_state[range_key]=(initial_start.date(),initial_end.date())
             st.session_state[selector_key]=selector
